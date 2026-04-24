@@ -1,18 +1,25 @@
 <?php
 session_start();
 include '../config/koneksi.php';
-if($_SESSION['role'] != "user") { header("location:../login.php"); }
+if ($_SESSION['role'] != "user") {
+    header("location:../login.php");
+}
 
 $id_ruangan = $_GET['id'];
 $ruangan = mysqli_query($koneksi, "SELECT * FROM ruangan WHERE id='$id_ruangan'");
 $r = mysqli_fetch_array($ruangan);
 
 // Jika ID tidak ditemukan
-if(!$r) { echo "Ruangan tidak ditemukan"; exit; }
+if (!$r) {
+    echo "Ruangan tidak ditemukan";
+    exit;
+}
+$query_institusi = mysqli_query($koneksi, "SELECT DISTINCT institusi_peminjam FROM reservasi WHERE institusi_peminjam IS NOT NULL");
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +30,7 @@ if(!$r) { echo "Ruangan tidak ditemukan"; exit; }
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <!-- Google Font: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    
+
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -45,7 +52,7 @@ if(!$r) { echo "Ruangan tidak ditemukan"; exit; }
             border: none;
             border-radius: 25px;
             background: #fff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             overflow: hidden;
         }
 
@@ -92,9 +99,10 @@ if(!$r) { echo "Ruangan tidak ditemukan"; exit; }
             display: flex;
             justify-content: space-around;
             padding: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             z-index: 1000;
         }
+
         .nav-item {
             text-align: center;
             color: #adb5bd;
@@ -102,12 +110,14 @@ if(!$r) { echo "Ruangan tidak ditemukan"; exit; }
             font-size: 11px;
             flex: 1;
         }
+
         .nav-item i {
             font-size: 22px;
             display: block;
         }
     </style>
 </head>
+
 <body>
 
     <!-- Header Section -->
@@ -127,7 +137,7 @@ if(!$r) { echo "Ruangan tidak ditemukan"; exit; }
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-12 col-md-8 col-lg-6">
-                
+
                 <!-- Info Ruangan Singkat -->
                 <div class="alert alert-primary border-0 shadow-sm mb-4 d-flex align-items-center" style="border-radius: 20px;">
                     <i class="bi bi-info-circle-fill fs-3 me-3"></i>
@@ -155,24 +165,43 @@ if(!$r) { echo "Ruangan tidak ditemukan"; exit; }
                                 </div>
                             </div>
 
-                            <?php if($r['tipe'] == 'meeting_room') { ?>
-                            <div class="row mb-3 animated fadeIn">
-                                <div class="col-6">
-                                    <label class="form-label">Jam Mulai</label>
-                                    <input type="time" name="jam_mulai" class="form-control" required>
+                            <?php if ($r['tipe'] == 'meeting_room') { ?>
+                                <div class="row mb-3 animated fadeIn">
+                                    <div class="col-6">
+                                        <label class="form-label">Jam Mulai</label>
+                                        <input type="time" name="jam_mulai" class="form-control" required>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">Jam Selesai</label>
+                                        <input type="time" name="jam_selesai" class="form-control" required>
+                                    </div>
                                 </div>
-                                <div class="col-6">
-                                    <label class="form-label">Jam Selesai</label>
-                                    <input type="time" name="jam_selesai" class="form-control" required>
-                                </div>
-                            </div>
                             <?php } ?>
 
                             <div class="mb-3">
-                                <label class="form-label">Keperluan / Nama Tamu</label>
+                                <label class="form-label">Keperluan</label>
                                 <textarea name="keperluan" class="form-control" rows="3" placeholder="Jelaskan tujuan peminjaman..." required></textarea>
                             </div>
+                            <div class="mb-3 position-relative"> <!-- Tambahkan position-relative -->
+                                <label class="form-label">Institusi / Unit Peminjam</label>
+                                <input type="text" name="institusi_peminjam" id="institusi" class="form-control" placeholder="Ketik nama unit..." autocomplete="off" required>
 
+                                <!-- Wadah Saran (Akan muncul saat mengetik) -->
+                                <div id="suggestion-box" class="shadow-sm border-0 position-absolute w-100 bg-white" style="display:none; z-index:1001; border-radius:15px; max-height:200px; overflow-y:auto; top: 75px;">
+                                    <ul class="list-group list-group-flush" id="suggestion-list">
+                                        <?php
+                                        // Ambil data institusi ke dalam array JS nanti
+                                        $institusi_array = [];
+                                        mysqli_data_seek($query_institusi, 0); // Reset pointer query
+                                        while ($inst = mysqli_fetch_array($query_institusi)) {
+                                            $institusi_array[] = $inst['institusi_peminjam'];
+                                            echo '<li class="list-group-item list-group-item-action border-0 small py-3 suggestion-item" style="cursor:pointer;">' . $inst['institusi_peminjam'] . '</li>';
+                                        }
+                                        ?>
+                                    </ul>
+                                </div>
+                                <small class="text-muted" style="font-size: 10px;">*Pilih dari saran atau ketik unit baru</small>
+                            </div>
                             <div class="mb-4">
                                 <label class="form-label">Jumlah Orang</label>
                                 <div class="input-group">
@@ -184,7 +213,7 @@ if(!$r) { echo "Ruangan tidak ditemukan"; exit; }
                             <button type="submit" class="btn btn-primary btn-confirm w-100 shadow">
                                 Ajukan Reservasi Sekarang <i class="bi bi-send ms-2"></i>
                             </button>
-                            
+
                             <a href="index.php" class="btn btn-link w-100 mt-3 text-decoration-none text-muted small">Batal & Kembali</a>
                         </form>
                     </div>
@@ -220,9 +249,68 @@ if(!$r) { echo "Ruangan tidak ditemukan"; exit; }
             <span>Keluar</span>
         </a>
     </div>
-
-    <!-- JS CDN -->
+    <!-- 1. MUAT JQUERY TERLEBIH DAHULU -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- 2. MUAT BOOTSTRAP JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- 3. KODE LOGIKA ANDA -->
+    <script>
+        $(document).ready(function() {
+            var input = $("#institusi");
+            var box = $("#suggestion-box");
+
+            // Set posisi tepat di bawah input
+            box.css({
+                'top': '100%',
+                'margin-top': '5px'
+            });
+
+            // Munculkan saran saat input di-fokus atau diketik
+            input.on("keyup focus", function() {
+                var val = $(this).val().toLowerCase();
+                var box = $("#suggestion-box");
+                var items = $(".suggestion-item");
+                var matchCount = 0;
+
+                // JIKA INPUT KOSONG, SEMBUNYIKAN BOX DAN BERHENTI
+                if (val.length === 0) {
+                    box.fadeOut(200);
+                    return;
+                }
+
+                // JIKA ADA HURUF, FILTER DATA
+                items.each(function() {
+                    var text = $(this).text().toLowerCase();
+                    if (text.indexOf(val) > -1) {
+                        $(this).show();
+                        matchCount++;
+                    } else {
+                        $(this).hide();
+                    }
+                });
+
+                // MUNCULKAN BOX HANYA JIKA ADA DATA YANG COCOK
+                if (matchCount > 0) {
+                    box.fadeIn(200);
+                } else {
+                    box.fadeOut(200);
+                }
+            });
+            // Saat saran diklik
+            $(document).on("click", ".suggestion-item", function() {
+                input.val($(this).text());
+                box.fadeOut(200);
+            });
+
+            // Sembunyikan saran jika klik di luar
+            $(document).on("click", function(e) {
+                if (!$(e.target).closest(".position-relative").length) {
+                    box.fadeOut(200);
+                }
+            });
+        });
+    </script>
 </body>
+
 </html>

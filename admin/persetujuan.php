@@ -142,7 +142,9 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                 <div class="card-body p-3">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
-                            <span class="unit-badge mb-1 d-inline-block"><?php echo $d['unit']; ?></span>
+                            <span class="unit-badge mb-1 d-inline-block text-primary">
+                                <i class="bi bi-briefcase me-1"></i> <?php echo $d['institusi_peminjam']; ?>
+                            </span>
                             <h6 class="fw-bold mb-0"><?php echo $d['nama_ruangan']; ?></h6>
                             <small class="text-muted" style="font-size: 11px;">
                                 Pemohon: <?php echo $d['nama_lengkap']; ?>
