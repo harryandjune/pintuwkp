@@ -3,7 +3,7 @@ session_start();
 include '../config/koneksi.php';
 
 // Proteksi halaman Admin
-if($_SESSION['role'] != "admin"){
+if ($_SESSION['role'] != "admin") {
     header("location:../login.php");
     exit();
 }
@@ -17,6 +17,7 @@ $count_user      = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM users 
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,7 +28,7 @@ $count_user      = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM users 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <!-- Google Font: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    
+
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -49,11 +50,14 @@ $count_user      = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM users 
             border-radius: 20px;
             padding: 20px;
             background: #fff;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
             transition: all 0.2s ease;
         }
-        .stat-card:active { transform: scale(0.95); }
-        
+
+        .stat-card:active {
+            transform: scale(0.95);
+        }
+
         .icon-box {
             width: 45px;
             height: 45px;
@@ -74,6 +78,7 @@ $count_user      = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM users 
         }
     </style>
 </head>
+
 <body>
 
     <!-- Header Section -->
@@ -90,11 +95,11 @@ $count_user      = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM users 
     <!-- Main Content -->
     <div class="container mt-3">
         <!-- Notifikasi Badge jika ada yang pending -->
-        <?php if($count_pending > 0) { ?>
-        <div class="alert alert-warning border-0 shadow-sm mx-2 mb-4 d-flex align-items-center" style="border-radius: 15px; margin-top: -20px;">
-            <i class="bi bi-bell-fill fs-4 me-3"></i>
-            <small class="fw-bold" style="font-size: 12px;">Ada <?php echo $count_pending; ?> pengajuan menunggu persetujuan!</small>
-        </div>
+        <?php if ($count_pending > 0) { ?>
+            <div class="alert alert-warning border-0 shadow-sm mx-2 mb-4 d-flex align-items-center" style="border-radius: 15px; margin-top: -20px;">
+                <i class="bi bi-bell-fill fs-4 me-3"></i>
+                <small class="fw-bold" style="font-size: 12px;">Ada <?php echo $count_pending; ?> pengajuan menunggu persetujuan!</small>
+            </div>
         <?php } ?>
 
         <!-- Grid Statistik -->
@@ -127,12 +132,14 @@ $count_user      = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM users 
                 </div>
             </div>
             <div class="col-6">
-                <div class="stat-card" onclick="window.location.href='users.php'">
-                    <div class="icon-box bg-info text-white shadow-sm">
-                        <i class="bi bi-people"></i>
+                <div class="stat-card" onclick="window.location.href='kalender.php'">
+                    <!-- Warna bg-danger (merah/pink) atau bg-info untuk kalender -->
+                    <div class="icon-box bg-danger text-white shadow-sm">
+                        <i class="bi bi-calendar3"></i>
                     </div>
-                    <h4 class="fw-bold mb-0"><?php echo $count_user; ?></h4>
-                    <small class="text-muted">User</small>
+                    <!-- Menampilkan jumlah booking yang sudah disetujui -->
+                    <h4 class="fw-bold mb-0"><?php echo $count_approved; ?></h4>
+                    <small class="text-muted">Kalender</small>
                 </div>
             </div>
         </div>
@@ -153,4 +160,5 @@ $count_user      = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM users 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
