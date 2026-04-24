@@ -2,28 +2,36 @@
 session_start();
 include 'config/koneksi.php';
 
+// Jika sudah login, langsung arahkan ke dashboard masing-masing
+if (isset($_SESSION['status']) && $_SESSION['status'] == "login") {
+    if ($_SESSION['role'] == "admin") {
+        header("location:admin/index.php");
+    } else {
+        header("location:user/index.php");
+    }
+    exit();
+}
+
 if (isset($_POST['login'])) {
     $username = mysqli_real_escape_string($koneksi, $_POST['username']);
-    $password = md5($_POST['password']); // Menggunakan MD5 sesuai dummy data sebelumnya
+    $password = md5($_POST['password']);
 
     $query = "SELECT * FROM users WHERE username='$username' AND password='$password'";
     $result = mysqli_query($koneksi, $query);
 
     if (mysqli_num_rows($result) > 0) {
         $data = mysqli_fetch_assoc($result);
-        
-        // Set Session
         $_SESSION['id_user'] = $data['id'];
         $_SESSION['nama']    = $data['nama_lengkap'];
         $_SESSION['role']    = $data['role'];
         $_SESSION['status']  = "login";
 
-        // Pengalihan berdasarkan role
         if ($data['role'] == "admin") {
             header("location:admin/index.php");
         } else {
             header("location:user/index.php");
         }
+        exit();
     } else {
         $error = "Username atau Password salah!";
     }
@@ -31,31 +39,145 @@ if (isset($_POST['login'])) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Login - PINTU WKP</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - <?php echo htmlspecialchars($sett['nama_sistem']); ?></title>
+    
+    <!-- Favicon Dinamis -->
+    <link rel="icon" type="image/x-icon" href="assets/img/<?php echo $sett['favicon']; ?>">
+    
+    <!-- CDN Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Font: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: sans-serif; background: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .login-box { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px; }
-        h2 { text-align: center; color: #333; }
-        input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #007bff; border: none; color: white; cursor: pointer; }
-        button:hover { background: #0056b3; }
-        .error { color: red; font-size: 13px; text-align: center; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f2f5;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .login-card {
+            border: none;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .brand-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #5eb4df, #072c64);
+            color: white;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            margin: 0 auto 15px;
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+            overflow: hidden;
+        }
+        .brand-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 10px;
+        }
+        .form-control {
+            border-radius: 15px;
+            padding: 12px 18px;
+            background-color: #f8f9fa;
+            border: 1px solid #eee;
+            font-size: 14px;
+        }
+        .form-control:focus {
+            background-color: #fff;
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+        }
+        .btn-login {
+            border-radius: 15px;
+            padding: 12px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #0d6efd, #0d6efd);
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+        }
+        .copyright-text {
+            font-size: 11px;
+            color: #adb5bd;
+            margin-top: 25px;
+            border-top: 1px solid #f1f1f1;
+            padding-top: 15px;
+        }
     </style>
 </head>
 <body>
-    <div class="login-box">
-        <h2>PINTU WKP</h2>
-        <p style="text-align:center; font-size:12px;">Pusat Informasi & Tata Usaha WKP</p>
-        
-        <?php if(isset($error)) { echo "<p class='error'>$error</p>"; } ?>
-        
-        <form method="post">
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit" name="login">Login</button>
-        </form>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-11 col-sm-8 col-md-5 col-lg-4">
+            <div class="card login-card p-3 p-md-4">
+                <div class="card-body text-center">
+                    
+                    <!-- Logo Dinamis: Tampilkan Gambar jika ada, jika tidak tampilkan Ikon -->
+                    <div class="brand-logo">
+                        <?php if (!empty($sett['logo']) && file_exists('assets/img/'.$sett['logo'])): ?>
+                            <img src="assets/img/<?php echo $sett['logo']; ?>" alt="Logo">
+                        <?php else: ?>
+                            <i class="bi bi-door-open-fill"></i>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <h3 class="fw-bold mb-1"><?php echo htmlspecialchars($sett['nama_sistem']); ?></h3>
+                    <p class="text-muted small mb-4"><?php echo htmlspecialchars($sett['deskripsi']); ?></p>
+
+                    <?php if (isset($error)): ?>
+                        <div class="alert alert-danger py-2 text-center small border-0" role="alert" style="border-radius: 12px;">
+                            <i class="bi bi-exclamation-circle me-2"></i> <?php echo $error; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <form method="post" class="text-start">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-secondary ms-1">Username</label>
+                            <input type="text" name="username" class="form-control" placeholder="Masukkan username" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-semibold text-secondary ms-1">Password</label>
+                            <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" name="login" class="btn btn-primary btn-login w-100 mb-3 text-white">
+                            Masuk Ke Sistem
+                        </button>
+                    </form>
+
+                    <div class="text-center">
+                        <p class="small text-muted mb-0">Belum punya akses? <a href="register.php" class="text-decoration-none fw-bold">Daftar</a></p>
+                    </div>
+
+                    <!-- Copyright Dinamis dari Database -->
+                    <div class="text-center copyright-text">
+                        &copy; <?php echo $sett['tahun_sistem']; ?> <?php echo htmlspecialchars($sett['copyright']); ?>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
