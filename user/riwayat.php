@@ -16,6 +16,8 @@ $user_id = $_SESSION['id_user'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riwayat Booking - PINTU WKP</title>
+    <!-- Favicon Dinamis -->
+    <link rel="icon" type="image/x-icon" href="../assets/img/<?php echo $sett['favicon']; ?>">
     <!-- CDN Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -61,39 +63,7 @@ $user_id = $_SESSION['id_user'];
             text-transform: uppercase;
         }
 
-        /* Floating Bottom Navigation */
-        .bottom-nav {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 450px;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(15px);
-            border-radius: 25px;
-            display: flex;
-            justify-content: space-around;
-            padding: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            z-index: 1000;
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-        .nav-item {
-            text-align: center;
-            color: #adb5bd;
-            text-decoration: none;
-            font-size: 11px;
-            flex: 1;
-        }
-        .nav-item i {
-            font-size: 22px;
-            display: block;
-            margin-bottom: 2px;
-        }
-        .nav-item.active {
-            color: #0d6efd;
-        }
+        
     </style>
 </head>
 <body>
@@ -184,25 +154,7 @@ $user_id = $_SESSION['id_user'];
         </div>
     </div>
 
-    <!-- Floating Bottom Navigation -->
-    <div class="bottom-nav">
-        <a href="index.php" class="nav-item">
-            <i class="bi bi-grid-1x2"></i>
-            <span>Beranda</span>
-        </a>
-        <a href="riwayat.php" class="nav-item active">
-            <i class="bi bi-calendar-event-fill"></i>
-            <span>Riwayat</span>
-        </a>
-        <a href="profil.php" class="nav-item">
-            <i class="bi bi-person"></i>
-            <span>Profil</span>
-        </a>
-        <a href="../logout.php" class="nav-item text-danger">
-            <i class="bi bi-box-arrow-right"></i>
-            <span>Keluar</span>
-        </a>
-    </div>
+    <?php include 'navbar.php'; ?>
 
     <!-- JS CDN -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

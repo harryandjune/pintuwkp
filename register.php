@@ -163,7 +163,7 @@ if (isset($_POST['register'])) {
                                 <input type="text" name="nama" class="form-control" placeholder="" required>
                             </div>
                             <div class="mb-4">
-                                <label class="form-label small fw-semibold text-secondary ms-1">Unit / Institusi Asal</label>
+                                <label class="form-label small fw-semibold text-secondary ms-1"> Asal Unit / Instansi</label>
                                 <input type="text" name="unit" class="form-control" placeholder="" required>
                             </div>
                             <div class="mb-4">

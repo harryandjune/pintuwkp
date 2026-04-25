@@ -17,7 +17,7 @@ if (isset($_POST['update_profile'])) {
     $no_wa = mysqli_real_escape_string($koneksi, $_POST['no_wa']);
 
     $query_update = "UPDATE users SET nama_lengkap='$nama', unit='$unit', no_wa='$no_wa' WHERE id='$user_id'";
-    
+
     if (mysqli_query($koneksi, $query_update)) {
         $_SESSION['nama'] = $nama; // Update nama di session agar header ikut berubah
         $msg = "<div class='alert alert-success border-0 shadow-sm small rounded-3'>Profil berhasil diperbarui!</div>";
@@ -44,17 +44,20 @@ $u = mysqli_fetch_array($query);
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil Saya - <?php echo $sett['nama_sistem']; ?></title>
+    <!-- Favicon Dinamis -->
+    <link rel="icon" type="image/x-icon" href="../assets/img/<?php echo $sett['favicon']; ?>">
     <!-- CDN Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <!-- Google Font: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    
+
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -79,7 +82,7 @@ $u = mysqli_fetch_array($query);
             align-items: center;
             justify-content: center;
             margin: -50px auto 15px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             color: #0d6efd;
             font-size: 50px;
             border: 5px solid #f0f2f5;
@@ -89,7 +92,7 @@ $u = mysqli_fetch_array($query);
             border: none;
             border-radius: 25px;
             background: #fff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
         }
 
         .form-label {
@@ -119,32 +122,6 @@ $u = mysqli_fetch_array($query);
             font-weight: 600;
         }
 
-        .bottom-nav {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 450px;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(15px);
-            border-radius: 25px;
-            display: flex;
-            justify-content: space-around;
-            padding: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            z-index: 1000;
-        }
-        .nav-item {
-            text-align: center;
-            color: #adb5bd;
-            text-decoration: none;
-            font-size: 11px;
-            flex: 1;
-        }
-        .nav-item i { font-size: 22px; display: block; }
-        .nav-item.active { color: #0d6efd; }
-
         .copyright-text {
             font-size: 11px;
             color: #adb5bd;
@@ -154,6 +131,7 @@ $u = mysqli_fetch_array($query);
         }
     </style>
 </head>
+
 <body>
 
     <div class="header-section">
@@ -170,7 +148,7 @@ $u = mysqli_fetch_array($query);
             <p class="text-muted small">@<?php echo htmlspecialchars($u['username']); ?></p>
         </div>
 
-        <?php if(isset($msg)) echo $msg; ?>
+        <?php if (isset($msg)) echo $msg; ?>
 
         <!-- Form Edit Profil -->
         <div class="card info-card p-4 mb-4">
@@ -206,34 +184,17 @@ $u = mysqli_fetch_array($query);
                     Ganti Password
                 </button>
             </form>
-            
+
             <div class="text-center copyright-text">
                 &copy; <?php echo $sett['tahun_sistem']; ?> <?php echo $sett['copyright']; ?>
             </div>
         </div>
     </div>
 
-    <!-- Floating Bottom Navigation -->
-    <div class="bottom-nav">
-        <a href="index.php" class="nav-item">
-            <i class="bi bi-grid-1x2"></i>
-            <span>Beranda</span>
-        </a>
-        <a href="riwayat.php" class="nav-item">
-            <i class="bi bi-calendar-event"></i>
-            <span>Riwayat</span>
-        </a>
-        <a href="profil.php" class="nav-item active">
-            <i class="bi bi-person-fill"></i>
-            <span>Profil</span>
-        </a>
-        <a href="../logout.php" class="nav-item text-danger" onclick="return confirm('Yakin ingin keluar?')">
-            <i class="bi bi-box-arrow-right"></i>
-            <span>Keluar</span>
-        </a>
-    </div>
+<?php include 'navbar.php'; ?>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
