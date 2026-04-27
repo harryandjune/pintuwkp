@@ -20,9 +20,51 @@ if ($_SESSION['role'] != "admin_kendaraan") {
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; padding-bottom: 100px; }
         .header-section { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; padding: 30px 20px 50px; border-radius: 0 0 30px 30px; margin-bottom: -30px; }
-        .car-card { border: none; border-radius: 20px; background: #fff; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); overflow: hidden; }
+        
+        /* DESAIN CARD BARU */
+        .car-card { 
+            border: none; 
+            border-radius: 25px; 
+            background: #fff; 
+            margin-bottom: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03); 
+            overflow: hidden; 
+            transition: all 0.3s ease;
+        }
+        
+        .car-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+        }
+
         .btn-add { border-radius: 15px; background: #f59e0b; border: none; color: #fff; font-weight: 600; padding: 10px 20px; }
-        .status-badge { font-size: 10px; padding: 4px 10px; border-radius: 8px; font-weight: 600; }
+        
+        .plat-nomor {
+            background: #f8f9fa;
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            letter-spacing: 0.5px;
+        }
+
+        .spec-item {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #475569;
+            display: flex;
+            align-items: center;
+        }
+        
+        .spec-item i {
+            margin-right: 5px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -53,40 +95,50 @@ if ($_SESSION['role'] != "admin_kendaraan") {
             ?>
             <div class="col-12 col-md-6">
                 <div class="card car-card">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="bg-light rounded-3 p-3 me-3 text-primary">
-                                <i class="bi bi-car-front-fill fs-2"></i>
+                    <div class="card-body p-4">
+                        
+                        <!-- Bagian Atas: Nama Mobil & Status -->
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-1 text-dark"><?php echo $d['merk'] . " " . $d['model']; ?></h5>
+                                <span class="plat-nomor"><i class="bi bi-card-heading me-1"></i> <?php echo $d['nomor_plat']; ?></span>
                             </div>
-                            <div class="flex-grow-1">
-                                <h6 class="fw-bold mb-0"><?php echo $d['merk'] . " " . $d['model']; ?></h6>
-                                <span class="text-primary small fw-bold"><?php echo $d['nomor_plat']; ?></span>
-                            </div>
-                            <div class="text-end">
-                                <?php if($d['status_kendaraan'] == 'tersedia') { ?>
-                                    <span class="status-badge bg-success-subtle text-success">Tersedia</span>
-                                <?php } else { ?>
-                                    <span class="status-badge bg-danger-subtle text-danger">Perbaikan</span>
-                                <?php } ?>
-                            </div>
+                            <?php if($d['status_kendaraan'] == 'tersedia') { ?>
+                                <span class="badge bg-success text-white" style="border-radius: 8px; font-size: 10px; padding: 6px 10px;">Tersedia</span>
+                            <?php } else { ?>
+                                <span class="badge bg-danger text-white" style="border-radius: 8px; font-size: 10px; padding: 6px 10px;">Perbaikan</span>
+                            <?php } ?>
                         </div>
                         
-                        <div class="row text-center border-top pt-3">
-                            <div class="col-4 border-end">
-                                <small class="text-muted d-block" style="font-size: 10px;">Jenis</small>
-                                <small class="fw-bold"><?php echo $d['jenis_kendaraan']; ?></small>
+                        <!-- Bagian Tengah: Spesifikasi Berjejer -->
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                            <div class="spec-item">
+                                <i class="bi bi-people-fill text-warning"></i>
+                                <?php echo $d['kapasitas']; ?> Kursi
                             </div>
-                            <div class="col-4 border-end">
-                                <small class="text-muted d-block" style="font-size: 10px;">Kapasitas</small>
-                                <small class="fw-bold"><?php echo $d['kapasitas']; ?> Seat</small>
+                            <div class="spec-item">
+                                <i class="bi bi-fuel-pump-fill text-warning"></i>
+                                <?php echo $d['jenis_kendaraan']; ?>
                             </div>
-                            <div class="col-4">
+                            <div class="spec-item">
+                                <i class="bi bi-calendar-check-fill text-warning"></i>
+                                Th <?php echo $d['tahun_produksi']; ?>
+                            </div>
+                        </div>
+
+                        <!-- Bagian Bawah: Aksi -->
+                        <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                            <small class="text-muted" style="font-size: 11px;">ID Kendaraan: #0<?php echo $d['id_kendaraan']; ?></small>
+                            <div>
                                 <a href="kendaraan_aksi.php?id=<?php echo $d['id_kendaraan']; ?>&aksi=hapus" 
-                                   class="text-danger" onclick="return confirm('Hapus kendaraan ini?')">
-                                    <i class="bi bi-trash"></i>
+                                   class="btn btn-sm btn-outline-danger border-0" 
+                                   style="border-radius: 8px;"
+                                   onclick="return confirm('Yakin ingin hapus kendaraan ini?')">
+                                    <i class="bi bi-trash-fill"></i>
                                 </a>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>

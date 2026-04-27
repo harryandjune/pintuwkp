@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Apr 24, 2026 at 08:19 AM
+-- Generation Time: Apr 26, 2026 at 08:51 AM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.28
 
@@ -20,6 +20,33 @@ SET time_zone = "+00:00";
 --
 -- Database: `pintuwkp`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `kendaraan`
+--
+
+CREATE TABLE `kendaraan` (
+  `id_kendaraan` int NOT NULL,
+  `nomor_plat` varchar(20) NOT NULL,
+  `merk` varchar(50) NOT NULL,
+  `model` varchar(50) NOT NULL,
+  `tahun_produksi` year NOT NULL,
+  `jenis_kendaraan` varchar(50) NOT NULL,
+  `kapasitas` int NOT NULL,
+  `foto` varchar(255) DEFAULT 'default_car.png',
+  `status_kendaraan` enum('tersedia','perbaikan','nonaktif') DEFAULT 'tersedia',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `kendaraan`
+--
+
+INSERT INTO `kendaraan` (`id_kendaraan`, `nomor_plat`, `merk`, `model`, `tahun_produksi`, `jenis_kendaraan`, `kapasitas`, `foto`, `status_kendaraan`, `created_at`) VALUES
+(1, 'KT 123 YC', 'Honda', 'CRV', '2024', 'MPV', 8, 'default_car.png', 'tersedia', '2026-04-25 23:08:25'),
+(2, 'KT 6787 GH', 'Toyota', 'Innova', '2021', 'MPV', 8, 'default_car.png', 'tersedia', '2026-04-25 23:08:54');
 
 -- --------------------------------------------------------
 
@@ -55,6 +82,7 @@ INSERT INTO `pengaturan` (`id`, `nama_sistem`, `deskripsi`, `logo`, `favicon`, `
 CREATE TABLE `reservasi` (
   `id` int NOT NULL,
   `user_id` int NOT NULL,
+  `institusi_peminjam` varchar(100) DEFAULT NULL,
   `ruangan_id` int NOT NULL,
   `tgl_pinjam` date NOT NULL,
   `tgl_selesai` date NOT NULL,
@@ -67,18 +95,33 @@ CREATE TABLE `reservasi` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- --------------------------------------------------------
+
 --
--- Dumping data for table `reservasi`
+-- Table structure for table `reservasi_kendaraan`
 --
 
-INSERT INTO `reservasi` (`id`, `user_id`, `ruangan_id`, `tgl_pinjam`, `tgl_selesai`, `jam_mulai`, `jam_selesai`, `keperluan`, `jumlah_orang`, `status`, `catatan_admin`, `created_at`) VALUES
-(1, 2, 1, '2026-04-14', '2026-04-14', '09:08:00', '10:08:00', 'Rapat Panitia Pernikahan Mubarakah', 20, 'disetujui', NULL, '2026-04-13 01:08:42'),
-(2, 4, 1, '2026-04-23', '2026-04-24', '10:20:00', '22:20:00', 'Rapat Pleni', 39, 'disetujui', NULL, '2026-04-23 14:20:59'),
-(3, 4, 4, '2026-04-25', '2026-04-26', '00:00:00', '00:00:00', 'Transit / Herianto', 2, 'ditolak', NULL, '2026-04-24 01:00:49'),
-(4, 4, 1, '2026-04-28', '2026-04-30', '10:20:00', '22:20:00', 'Rapat Silatnas', 10, 'disetujui', NULL, '2026-04-24 02:21:36'),
-(5, 4, 4, '2026-05-01', '2026-05-02', '00:00:00', '00:00:00', 'transit', 1, 'disetujui', NULL, '2026-04-24 02:23:47'),
-(6, 4, 4, '2026-05-08', '2026-05-09', '00:00:00', '00:00:00', 'transit', 1, 'disetujui', NULL, '2026-04-24 02:29:52'),
-(7, 4, 4, '2026-05-06', '2026-05-07', '00:00:00', '00:00:00', 'transit', 1, 'ditolak', NULL, '2026-04-24 02:46:44');
+CREATE TABLE `reservasi_kendaraan` (
+  `id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `institusi_peminjam` varchar(100) NOT NULL,
+  `kendaraan_id` int NOT NULL,
+  `tgl_mulai` datetime NOT NULL,
+  `tgl_selesai` datetime NOT NULL,
+  `tujuan` text NOT NULL,
+  `keperluan` text NOT NULL,
+  `pakai_sopir` enum('ya','tidak') DEFAULT 'ya',
+  `status` enum('pending','disetujui','ditolak','selesai') DEFAULT 'pending',
+  `catatan_admin` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `reservasi_kendaraan`
+--
+
+INSERT INTO `reservasi_kendaraan` (`id`, `user_id`, `institusi_peminjam`, `kendaraan_id`, `tgl_mulai`, `tgl_selesai`, `tujuan`, `keperluan`, `pakai_sopir`, `status`, `catatan_admin`, `created_at`) VALUES
+(1, 3, 'MI RM Putra', 1, '2026-04-26 07:22:00', '2026-04-26 19:22:00', 'Bandara', 'Antar Ustadz DPP', 'tidak', 'disetujui', NULL, '2026-04-25 23:23:03');
 
 -- --------------------------------------------------------
 
@@ -117,7 +160,7 @@ CREATE TABLE `users` (
   `nama_lengkap` varchar(100) NOT NULL,
   `unit` varchar(100) DEFAULT NULL,
   `no_wa` varchar(20) DEFAULT NULL,
-  `role` enum('admin','user') DEFAULT 'user',
+  `role` enum('admin','user','admin_kendaraan') DEFAULT 'user',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -129,11 +172,18 @@ INSERT INTO `users` (`id`, `username`, `password`, `nama_lengkap`, `unit`, `no_w
 (1, 'admin_wkp', '0192023a7bbd73250516f069df18b500', 'Administrator WKP', 'Kantor Pengurus', NULL, 'admin', '2026-04-12 20:58:52'),
 (2, 'unit_sekolah', '6ad14ba9986e3615423dfca256d04e3f', 'Budi Setiadi', 'Unit Sekolah Yayasan', NULL, 'user', '2026-04-12 20:58:52'),
 (3, 'hamimal', '1a50f204bef29eab587463f40b344dc6', 'Hamimal Mustafa', 'SMH', NULL, 'user', '2026-04-21 11:15:30'),
-(4, 'herianto', '1a50f204bef29eab587463f40b344dc6', 'Herianto', 'STIS Hidayatullah Balikpapan', '085345631391', 'user', '2026-04-23 14:19:17');
+(5, 'muhakbar', 'f039e5f60e85d10bf7b742e65ad931ca', 'Muhammad Akbar', 'Sekretariat YPPH', '085345631391', 'admin_kendaraan', '2026-04-25 22:53:48');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `kendaraan`
+--
+ALTER TABLE `kendaraan`
+  ADD PRIMARY KEY (`id_kendaraan`),
+  ADD UNIQUE KEY `nomor_plat` (`nomor_plat`);
 
 --
 -- Indexes for table `pengaturan`
@@ -148,6 +198,14 @@ ALTER TABLE `reservasi`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `ruangan_id` (`ruangan_id`);
+
+--
+-- Indexes for table `reservasi_kendaraan`
+--
+ALTER TABLE `reservasi_kendaraan`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `kendaraan_id` (`kendaraan_id`);
 
 --
 -- Indexes for table `ruangan`
@@ -167,6 +225,12 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `kendaraan`
+--
+ALTER TABLE `kendaraan`
+  MODIFY `id_kendaraan` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `pengaturan`
 --
 ALTER TABLE `pengaturan`
@@ -176,7 +240,13 @@ ALTER TABLE `pengaturan`
 -- AUTO_INCREMENT for table `reservasi`
 --
 ALTER TABLE `reservasi`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `reservasi_kendaraan`
+--
+ALTER TABLE `reservasi_kendaraan`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `ruangan`
@@ -188,7 +258,7 @@ ALTER TABLE `ruangan`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
@@ -200,6 +270,13 @@ ALTER TABLE `users`
 ALTER TABLE `reservasi`
   ADD CONSTRAINT `reservasi_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `reservasi_ibfk_2` FOREIGN KEY (`ruangan_id`) REFERENCES `ruangan` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `reservasi_kendaraan`
+--
+ALTER TABLE `reservasi_kendaraan`
+  ADD CONSTRAINT `reservasi_kendaraan_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `reservasi_kendaraan_ibfk_2` FOREIGN KEY (`kendaraan_id`) REFERENCES `kendaraan` (`id_kendaraan`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
