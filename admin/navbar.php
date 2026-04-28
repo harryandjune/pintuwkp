@@ -3,7 +3,6 @@
 $current_page = basename($_SERVER['PHP_SELF']);
 
 // Ambil jumlah pending untuk lencana (badge)
-// Cek dulu apakah koneksi ada, jika tidak sertakan (opsional jika sudah ada di file utama)
 include_once '../config/koneksi.php';
 $count_pending_nav = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservasi WHERE status='pending'"));
 ?>
@@ -49,13 +48,15 @@ $count_pending_nav = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM rese
 
 <!-- Floating Bottom Navigation -->
 <div class="bottom-nav">
+    <!-- DASHBOARD -->
     <a href="index.php" class="nav-item <?php echo ($current_page == 'index.php') ? 'active' : ''; ?>">
-        <i class="bi bi-speedometer2"></i>
+        <i class="bi <?php echo ($current_page == 'index.php') ? 'bi-speedometer2' : 'bi-speedometer'; ?>"></i>
         <span>Dash</span>
     </a>
     
+    <!-- PERSETUJUAN / IZIN -->
     <a href="persetujuan.php" class="nav-item <?php echo ($current_page == 'persetujuan.php') ? 'active' : ''; ?>">
-        <i class="bi bi-clipboard-check"></i>
+        <i class="bi <?php echo ($current_page == 'persetujuan.php') ? 'bi-clipboard-check-fill' : 'bi-clipboard-check'; ?>"></i>
         <span>Izin</span>
         <?php if($count_pending_nav > 0) { ?>
             <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger" style="font-size: 8px; margin-top: 5px;">
@@ -64,21 +65,25 @@ $count_pending_nav = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM rese
         <?php } ?>
     </a>
     
+    <!-- MANAJEMEN RUANGAN -->
     <a href="ruangan.php" class="nav-item <?php echo ($current_page == 'ruangan.php' || $current_page == 'ruangan_tambah.php') ? 'active' : ''; ?>">
-        <i class="bi bi-door-open"></i>
+        <i class="bi <?php echo ($current_page == 'ruangan.php' || $current_page == 'ruangan_tambah.php') ? 'bi-door-open-fill' : 'bi-door-open'; ?>"></i>
         <span>Ruang</span>
     </a>
     
-    <a href="users.php" class="nav-item <?php echo ($current_page == 'users.php') ? 'active' : ''; ?>">
-        <i class="bi bi-people"></i>
-        <span>User</span>
+    <!-- REKAP BUKU TAMU (Ganti dari users.php) -->
+    <a href="rekap.php" class="nav-item <?php echo ($current_page == 'rekap.php') ? 'active' : ''; ?>">
+        <i class="bi <?php echo ($current_page == 'rekap.php') ? 'bi-person-rolodex' : 'bi-person-lines-fill'; ?>"></i>
+        <span>Tamu</span>
     </a>
     
+    <!-- PENGATURAN SISTEM -->
     <a href="pengaturan.php" class="nav-item <?php echo ($current_page == 'pengaturan.php') ? 'active' : ''; ?>">
-        <i class="bi bi-gear"></i>
+        <i class="bi <?php echo ($current_page == 'pengaturan.php') ? 'bi-gear-fill' : 'bi-gear'; ?>"></i>
         <span>Set</span>
     </a>
     
+    <!-- LOGOUT -->
     <a href="../logout.php" class="nav-item text-danger" onclick="return confirm('Yakin ingin keluar?')">
         <i class="bi bi-power"></i>
         <span>Out</span>
