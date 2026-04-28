@@ -149,7 +149,14 @@ if (isset($_POST['register'])) {
                         <form method="post">
                             <div class="mb-3">
                                 <label class="form-label small fw-semibold text-secondary ms-1">Username</label>
-                                <input type="text" name="username" class="form-control" placeholder="" required>
+                                <input type="text"
+                                    name="username"
+                                    class="form-control"
+                                    placeholder="Masukkan username"
+                                    required
+                                    autocapitalize="none"
+                                    autocorrect="off"
+                                    spellcheck="false">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label small fw-semibold text-secondary ms-1">Password</label>

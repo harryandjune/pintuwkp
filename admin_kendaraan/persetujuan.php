@@ -2,6 +2,7 @@
 session_start();
 include '../config/koneksi.php';
 
+// Proteksi Admin Kendaraan
 if ($_SESSION['role'] != "admin_kendaraan") {
     header("location:../login.php");
     exit();
@@ -24,16 +25,17 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
         .header-section { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; padding: 30px 20px 50px; border-radius: 0 0 30px 30px; margin-bottom: -30px; }
         .approval-card { border: none; border-radius: 20px; background: #fff; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         .status-badge { font-size: 10px; padding: 4px 10px; border-radius: 8px; font-weight: 600; text-transform: uppercase; }
-        .info-box { background: #f8f9fa; border-radius: 12px; padding: 10px; font-size: 12px; }
+        .info-box { background: #f8f9fa; border-radius: 12px; padding: 12px; font-size: 12px; }
+        .driver-alt-badge { background: #fff8e6; color: #9a6700; border: 1px dashed #f59e0b; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; }
     </style>
 </head>
 <body>
 
     <div class="header-section shadow d-flex align-items-center">
-        <div class="container">
+        <div class="container text-start">
             <div class="d-flex align-items-center">
                 <a href="index.php" class="text-white me-3 fs-4"><i class="bi bi-arrow-left"></i></a>
-                <h4 class="fw-bold mb-0">Persetujuan Mobil</h4>
+                <h4 class="fw-bold mb-0 text-white">Persetujuan Mobil</h4>
             </div>
         </div>
     </div>
@@ -42,7 +44,7 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
         <div class="px-2 mb-4 d-flex justify-content-between align-items-end">
             <div>
                 <h6 class="fw-bold mb-0">Daftar Pengajuan</h6>
-                <small class="text-muted">Kelola izin armada</small>
+                <small class="text-muted">Kelola izin penggunaan armada</small>
             </div>
             <span class="badge bg-white text-dark shadow-sm rounded-pill px-3"><?php echo $count_pending; ?> Baru</span>
         </div>
@@ -56,19 +58,26 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
         
         $data = mysqli_query($koneksi, $query);
 
+        if(mysqli_num_rows($data) == 0){
+            echo '<div class="text-center py-5 text-muted"><i class="bi bi-inbox fs-1"></i><p>Tidak ada data pengajuan.</p></div>';
+        }
+
         while($d = mysqli_fetch_array($data)){
             // Format WhatsApp User
             $phone = preg_replace('/[^0-9]/', '', $d['no_wa'] ?? '');
             if(substr($phone, 0, 1) === '0') $phone = '62' . substr($phone, 1);
+            elseif(substr($phone, 0, 1) === '8') $phone = '62' . $phone;
         ?>
         <div class="card approval-card shadow-sm">
-            <div class="card-body p-3">
+            <div class="card-body p-3 text-start">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
-                        <span class="badge bg-primary-subtle text-primary mb-1" style="font-size: 9px;"><?php echo $d['institusi_peminjam']; ?></span>
+                        <span class="badge bg-primary-subtle text-primary mb-1" style="font-size: 9px;"><?php echo htmlspecialchars($d['institusi_peminjam']); ?></span>
                         <h6 class="fw-bold mb-0"><?php echo $d['merk'].' '.$d['model']; ?></h6>
                         <small class="text-muted">PIC: <?php echo $d['nama_lengkap']; ?> 
-                            <a href="https://wa.me/<?php echo $phone; ?>" target="_blank" class="text-success ms-1"><i class="bi bi-whatsapp"></i></a>
+                            <?php if(!empty($phone)){ ?>
+                                <a href="https://wa.me/<?php echo $phone; ?>" target="_blank" class="text-success ms-1"><i class="bi bi-whatsapp"></i></a>
+                            <?php } ?>
                         </small>
                     </div>
                     <?php 
@@ -79,20 +88,26 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                 </div>
 
                 <div class="info-box mb-3">
-                    <div class="row">
+                    <div class="row mb-2">
                         <div class="col-6 border-end">
-                            <small class="text-muted d-block">Waktu:</small>
+                            <small class="text-muted d-block">Waktu Pinjam:</small>
                             <small class="fw-bold"><?php echo date('d M, H:i', strtotime($d['tgl_mulai'])); ?></small>
                         </div>
                         <div class="col-6 ps-3">
-                            <small class="text-muted d-block">Sopir:</small>
-                            <small class="fw-bold text-uppercase"><?php echo $d['pakai_sopir']; ?></small>
+                            <small class="text-muted d-block">Kebutuhan Sopir:</small>
+                            <?php if($d['pakai_sopir'] == 'ya'){ ?>
+                                <small class="fw-bold text-success text-uppercase">SOPIR YAYASAN</small>
+                            <?php } else { ?>
+                                <div class="driver-alt-badge mt-1">
+                                    <i class="bi bi-person-badge"></i> ALT: <?php echo htmlspecialchars($d['nama_sopir_alt']); ?>
+                                </div>
+                            <?php } ?>
                         </div>
                     </div>
-                    <div class="mt-2 border-top pt-2">
+                    <div class="mt-2 border-top pt-2 text-start">
                         <small class="text-muted d-block">Tujuan & Keperluan:</small>
-                        <small class="fw-bold d-block text-primary"><?php echo $d['tujuan']; ?></small>
-                        <small class="text-secondary"><?php echo $d['keperluan']; ?></small>
+                        <small class="fw-bold d-block text-primary"><?php echo htmlspecialchars($d['tujuan']); ?></small>
+                        <small class="text-secondary"><?php echo htmlspecialchars($d['keperluan']); ?></small>
                     </div>
                 </div>
 
@@ -109,8 +124,15 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
             </div>
         </div>
         <?php } ?>
+        
+        <div class="text-center mt-4">
+            <p class="text-muted" style="font-size: 10px;">&copy; <?php echo $sett['tahun_sistem']; ?> <?php echo $sett['copyright']; ?></p>
+        </div>
     </div>
 
     <?php include 'navbar.php'; ?>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

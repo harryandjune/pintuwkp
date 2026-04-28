@@ -88,9 +88,15 @@ $count_user      = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM users 
         <div class="container text-center">
             <h6 class="opacity-75 mb-1">Administrator Dashboard</h6>
             <h4 class="fw-bold"><?php echo $sett['nama_sistem']; ?></h4>
-            <div class="mt-3 badge bg-primary px-3 py-2 rounded-pill shadow-sm">
-                <i class="bi bi-person-check-fill me-2"></i> <?php echo $_SESSION['nama']; ?>
-            </div>
+
+            <!-- Link ke users.php (Halaman Update Akun) -->
+            <a href="users.php" class="text-decoration-none">
+                <div class="mt-3 badge bg-primary px-3 py-2 rounded-pill shadow-sm border border-light border-opacity-25" style="transition: all 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <i class="bi bi-person-circle me-2"></i>
+                    <?php echo $_SESSION['nama']; ?>
+                    <i class="bi bi-chevron-right ms-2 small opacity-50"></i>
+                </div>
+            </a>
         </div>
     </div>
 
@@ -106,42 +112,47 @@ $count_user      = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM users 
 
         <!-- Grid Statistik -->
         <div class="row g-3 px-2">
+            <!-- CARD PENDING -->
             <div class="col-6">
-                <div class="stat-card" onclick="window.location.href='persetujuan.php'">
-                    <div class="icon-box bg-warning text-white shadow-sm">
+                <div class="stat-card text-center" onclick="window.location.href='persetujuan.php'">
+                    <div class="icon-box bg-warning text-white shadow-sm mx-auto">
                         <i class="bi bi-hourglass-split"></i>
                     </div>
-                    <h4 class="fw-bold mb-0"><?php echo $count_pending; ?></h4>
-                    <small class="text-muted">Pending</small>
+                    <h4 class="fw-bold mb-0 mt-2"><?php echo $count_pending; ?></h4>
+                    <small class="text-muted d-block">Pending</small>
                 </div>
             </div>
+
+            <!-- CARD DISETUJUI -->
             <div class="col-6">
-                <div class="stat-card">
-                    <div class="icon-box bg-success text-white shadow-sm">
+                <div class="stat-card text-center">
+                    <div class="icon-box bg-success text-white shadow-sm mx-auto">
                         <i class="bi bi-check2-circle"></i>
                     </div>
-                    <h4 class="fw-bold mb-0"><?php echo $count_approved; ?></h4>
-                    <small class="text-muted">Disetujui</small>
+                    <h4 class="fw-bold mb-0 mt-2"><?php echo $count_approved; ?></h4>
+                    <small class="text-muted d-block">Disetujui</small>
                 </div>
             </div>
+
+            <!-- CARD RUANGAN -->
             <div class="col-6">
-                <div class="stat-card" onclick="window.location.href='ruangan.php'">
-                    <div class="icon-box bg-primary text-white shadow-sm">
+                <div class="stat-card text-center" onclick="window.location.href='ruangan.php'">
+                    <div class="icon-box bg-primary text-white shadow-sm mx-auto">
                         <i class="bi bi-building"></i>
                     </div>
-                    <h4 class="fw-bold mb-0"><?php echo $count_ruangan; ?></h4>
-                    <small class="text-muted">Ruangan</small>
+                    <h4 class="fw-bold mb-0 mt-2"><?php echo $count_ruangan; ?></h4>
+                    <small class="text-muted d-block">Ruangan</small>
                 </div>
             </div>
+
+            <!-- CARD KALENDER -->
             <div class="col-6">
-                <div class="stat-card" onclick="window.location.href='kalender.php'">
-                    <!-- Warna bg-danger (merah/pink) atau bg-info untuk kalender -->
-                    <div class="icon-box bg-danger text-white shadow-sm">
+                <div class="stat-card text-center" onclick="window.location.href='kalender.php'">
+                    <div class="icon-box bg-danger text-white shadow-sm mx-auto">
                         <i class="bi bi-calendar3"></i>
                     </div>
-                    <!-- Menampilkan jumlah booking yang sudah disetujui -->
-                    <h4 class="fw-bold mb-0"><?php echo $count_approved; ?></h4>
-                    <small class="text-muted">Kalender</small>
+                    <h4 class="fw-bold mb-0 mt-2"><?php echo $count_approved; ?></h4>
+                    <small class="text-muted d-block">Kalender</small>
                 </div>
             </div>
         </div>
@@ -149,7 +160,7 @@ $count_user      = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM users 
         <!-- Kartu Identitas Admin -->
         <div class="card stat-card mx-2 mt-4 text-center">
             <h6 class="fw-bold mb-2">Manajemen <?php echo $sett['nama_sistem']; ?></h6>
-            <p class="small text-muted px-3"><?php echo $sett['deskripsi']; ?></p>
+            <p class="small text-muted px-3 mb-0"><?php echo $sett['deskripsi']; ?></p>
             <div class="copyright-text">
                 &copy; <?php echo $sett['tahun_sistem']; ?> <?php echo $sett['copyright']; ?>
             </div>

@@ -1,5 +1,5 @@
 <?php
-include 'config/koneksi.php'; // Mengambil data pengaturan ($sett)
+include 'config/koneksi.php'; // Path disesuaikan karena file ada di root
 
 $show_success = false;
 if (isset($_POST['simpan_tamu'])) {
@@ -26,162 +26,157 @@ if (isset($_POST['simpan_tamu'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buku Tamu - <?php echo htmlspecialchars($sett['nama_sistem']); ?></title>
     <!-- Favicon Dinamis -->
-    <link rel="icon" type="image/x-icon" href="../assets/img/<?php echo $sett['favicon']; ?>">
+    <link rel="icon" type="image/x-icon" href="assets/img/<?php echo $sett['favicon']; ?>">
     
+    <!-- CDN Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Google Font: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --mustard: #e1ad01;
-            --dark-bg: #121212;
-            --card-bg: #1e1e1e;
-            --placeholder-color: #a0a0a0;
+            --primary-color: #0d6efd;
+            --secondary-color: #f8f9fa;
+            --text-dark: #2d3436;
+            --text-muted: #636e72;
         }
 
         body {
-            background-color: var(--dark-bg);
-            color: #ffffff;
+            background-color: #f0f2f5;
+            color: var(--text-dark);
             font-family: 'Poppins', sans-serif;
-            padding: 40px 0;
             display: flex;
             align-items: center;
             min-height: 100vh;
+            padding: 20px 0;
         }
 
         .form-container {
             max-width: 500px;
             margin: auto;
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 30px;
-            border-top: 8px solid var(--mustard);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .logo-wrapper {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .guest-icon {
-            width: 90px;
-            height: 90px;
-            background: rgba(255, 255, 255, 0.1);
+            width: 80px;
+            height: 80px;
+            background: rgba(13, 110, 253, 0.05);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
+            border-radius: 20px;
             margin-bottom: 10px;
-            overflow: hidden;
         }
 
         .guest-icon img {
-            width: 70%;
-            height: 70%;
+            width: 65%;
+            height: 65%;
             object-fit: contain;
         }
 
         .guest-icon i {
-            font-size: 3.5rem;
-            color: var(--mustard);
+            font-size: 2.5rem;
+            color: var(--primary-color);
         }
 
         .header-title {
-            color: var(--mustard);
-            font-weight: 600;
+            color: var(--text-dark);
+            font-weight: 700;
             text-align: center;
             margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 1.4rem;
+            font-size: 1.5rem;
         }
 
         .header-subtitle {
             text-align: center;
             font-size: 0.85rem;
-            color: #888;
+            color: var(--text-muted);
             margin-bottom: 30px;
+            line-height: 1.4;
         }
 
         .form-label {
-            color: var(--mustard);
             font-size: 0.8rem;
             font-weight: 600;
-            margin-left: 5px;
+            color: var(--text-dark);
+            margin-left: 2px;
+            margin-bottom: 8px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .form-control {
-            background-color: #2a2a2a;
-            border: 1px solid #333;
-            color: #fff;
+            background-color: #fdfdfd;
+            border: 1.5px solid #edf2f7;
+            color: var(--text-dark);
             border-radius: 12px;
             padding: 12px 15px;
             font-size: 0.95rem;
+            transition: all 0.2s ease;
         }
 
         .form-control::placeholder {
-            color: var(--placeholder-color) !important;
+            color: #b1b1b1;
             font-size: 0.9rem;
         }
 
         .form-control:focus {
-            background-color: #2a2a2a;
-            color: #fff;
-            border-color: var(--mustard);
-            box-shadow: 0 0 0 0.25rem rgba(225, 173, 1, 0.25);
+            background-color: #fff;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
         }
 
         .btn-submit {
-            background-color: var(--mustard);
-            color: #000;
+            background: linear-gradient(135deg, #0d6efd, #0049b8);
+            color: #fff;
             border: none;
             width: 100%;
             padding: 14px;
             border-radius: 15px;
-            font-weight: 700;
+            font-weight: 600;
             margin-top: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
             transition: all 0.3s ease;
         }
 
         .btn-submit:hover {
-            background-color: #c49601;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(225, 173, 1, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(13, 110, 253, 0.2);
+            color: #fff;
         }
 
         .btn-success-back {
-            background-color: transparent;
-            border: 2px solid var(--mustard);
-            color: var(--mustard);
+            background-color: var(--secondary-color);
+            color: var(--text-dark);
             width: 100%;
             padding: 12px;
-            border-radius: 15px;
+            border-radius: 12px;
             font-weight: 600;
             text-decoration: none;
             display: inline-block;
             margin-top: 20px;
-            transition: 0.3s;
-        }
-
-        .btn-success-back:hover {
-            background: var(--mustard);
-            color: #000;
-        }
-
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1);
+            text-align: center;
         }
 
         .copyright {
             text-align: center;
-            font-size: 0.7rem;
-            color: #555;
-            margin-top: 25px;
-            letter-spacing: 0.5px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 30px;
+        }
+
+        /* Styling Kalender pada Input Date agar senada */
+        input[type="date"] {
+            color: var(--text-dark);
         }
     </style>
 </head>
@@ -191,54 +186,56 @@ if (isset($_POST['simpan_tamu'])) {
     <div class="form-container">
         
         <?php if ($show_success): ?>
-            <!-- Tampilan Berhasil -->
+            <!-- Tampilan Jika Berhasil Simpan -->
             <div class="text-center py-4">
-                <div class="guest-icon mb-4">
-                    <i class="bi bi-shield-check"></i>
+                <div class="guest-icon mb-4" style="background: rgba(40, 167, 69, 0.1);">
+                    <i class="bi bi-check-lg text-success"></i>
                 </div>
-                <h2 class="header-title">Data Tersimpan</h2>
-                <p class="text-secondary small px-3">Terima kasih. Data kunjungan Anda di <b><?php echo htmlspecialchars($sett['nama_sistem']); ?></b> telah berhasil kami catat.</p>
-                <a href="index.php" class="btn btn-success-back">Selesai / Kembali</a>
+                <h2 class="header-title">Selamat Datang!</h2>
+                <p class="header-subtitle px-2">Terima kasih atas kunjungannya.</p>
+                <a href="buku-tamu.php" class="btn btn-success-back">
+                    <i class="bi bi-arrow-left me-1"></i> Kembali ke Awal
+                </a>
             </div>
         <?php else: ?>
-            <!-- Form Utama -->
+            <!-- Tampilan Form Utama -->
             <div class="logo-wrapper">
                 <div class="guest-icon">
-                    <?php if (!empty($sett['logo']) && file_exists('../assets/img/'.$sett['logo'])): ?>
-                        <img src="../assets/img/<?php echo $sett['logo']; ?>" alt="Logo">
+                    <?php if (!empty($sett['logo']) && file_exists('assets/img/'.$sett['logo'])): ?>
+                        <img src="assets/img/<?php echo $sett['logo']; ?>" alt="Logo">
                     <?php else: ?>
-                        <i class="bi bi-person-rolodex"></i>
+                        <i class="bi bi-person-badge"></i>
                     <?php endif; ?>
                 </div>
             </div>
 
             <h2 class="header-title"><?php echo htmlspecialchars($sett['nama_sistem']); ?></h2>
-            <p class="header-subtitle text-uppercase small">Buku Tamu Digital Yayasan Ponpes Hidayatullah Balikpapan</p>
+            <p class="header-subtitle text-uppercase font-monospace" style="font-size: 0.7rem; letter-spacing: 1px;">Digital Guest Book System</p>
 
             <form action="" method="POST">
                 <div class="mb-3">
-                    <label class="form-label">Tanggal</label>
+                    <label class="form-label">Tanggal Kunjungan</label>
                     <input type="date" name="tanggal" class="form-control" value="<?php echo date('Y-m-d'); ?>" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Nama Lengkap</label>
-                    <input type="text" name="nama" class="form-control" placeholder="Nama sesuai identitas" required>
+                    <input type="text" name="nama" class="form-control" placeholder="Tuliskan nama Anda" required>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Asal Instansi</label>
-                    <input type="text" name="instansi" class="form-control" placeholder="Contoh: Dinas / PT. Berkah" required>
+                    <label class="form-label">Asal Instansi / Unit</label>
+                    <input type="text" name="instansi" class="form-control" placeholder="Contoh: Unit Sekolah / PT. Maju Jaya" required>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Maksud & Tujuan</label>
-                    <textarea name="tujuan" class="form-control" rows="2" placeholder="Tujuan kunjungan Anda..." required></textarea>
+                    <label class="form-label">Maksud dan Tujuan</label>
+                    <textarea name="tujuan" class="form-control" rows="2" placeholder="Keperluan kedatangan Anda..." required></textarea>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Alamat</label>
-                    <input type="text" name="alamat" class="form-control" placeholder="Masukkan alamat singkat" required>
+                    <label class="form-label">Alamat / Domisili</label>
+                    <input type="text" name="alamat" class="form-control" placeholder="Contoh: Balikpapan / Samarinda" required>
                 </div>
 
                 <div class="mb-3">
@@ -246,7 +243,9 @@ if (isset($_POST['simpan_tamu'])) {
                     <input type="number" name="no_wa" class="form-control" placeholder="Contoh: 0812xxxxxxxx" required>
                 </div>
 
-                <button type="submit" name="simpan_tamu" class="btn btn-submit shadow">Kirim Data Kedatangan</button>
+                <button type="submit" name="simpan_tamu" class="btn btn-submit">
+                    <i class="bi bi-pencil-square me-2"></i> Kirim Kehadiran
+                </button>
             </form>
         <?php endif; ?>
 

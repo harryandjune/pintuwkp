@@ -7,10 +7,8 @@ $id_v = $_GET['id'];
 $mobil = mysqli_query($koneksi, "SELECT * FROM kendaraan WHERE id_kendaraan='$id_v'");
 $m = mysqli_fetch_array($mobil);
 
-// Jika ID tidak ditemukan
 if (!$m) { echo "Armada tidak ditemukan"; exit; }
 
-// Ambil daftar institusi unik untuk autocomplete (seperti di form ruangan)
 $query_institusi = mysqli_query($koneksi, "SELECT DISTINCT institusi_peminjam FROM reservasi_kendaraan WHERE institusi_peminjam IS NOT NULL");
 ?>
 
@@ -20,11 +18,8 @@ $query_institusi = mysqli_query($koneksi, "SELECT DISTINCT institusi_peminjam FR
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking Mobil - <?php echo $m['model']; ?></title>
-    <!-- CDN Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- Google Font: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
@@ -35,23 +30,12 @@ $query_institusi = mysqli_query($koneksi, "SELECT DISTINCT institusi_peminjam FR
         .form-control, .form-select { border-radius: 12px; padding: 12px; background: #f8f9fa; border: 1px solid #eee; font-size: 14px; }
         .form-control:focus { background: #fff; border-color: #0d6efd; box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1); }
         
-        /* Suggestion Box Style */
-        #suggestion-box {
-            display: none;
-            position: absolute;
-            width: 100%;
-            background: white;
-            z-index: 1001;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #eee;
-            top: 100%;
-            margin-top: 5px;
-        }
-        .suggestion-item { cursor: pointer; padding: 12px 15px; font-size: 13px; transition: 0.2s; }
+        #suggestion-box { display: none; position: absolute; width: 100%; background: white; z-index: 1001; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-height: 200px; overflow-y: auto; border: 1px solid #eee; top: 100%; margin-top: 5px; }
+        .suggestion-item { cursor: pointer; padding: 12px 15px; font-size: 13px; }
         .suggestion-item:hover { background-color: #f1f5f9; color: #0d6efd; }
+
+        /* Style untuk highlight kolom sopir alt */
+        #div_sopir_alt { display: none; background: #fff8e6; padding: 15px; border-radius: 15px; border: 1px dashed #f59e0b; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -71,24 +55,14 @@ $query_institusi = mysqli_query($koneksi, "SELECT DISTINCT institusi_peminjam FR
             <form action="booking_kendaraan_aksi.php" method="post">
                 <input type="hidden" name="kendaraan_id" value="<?php echo $m['id_kendaraan']; ?>">
 
-                <!-- Bagian Institusi dengan Custom Autocomplete -->
                 <div class="mb-3 position-relative">
                     <label class="form-label">Institusi / Unit Peminjam</label>
-                    <input type="text" name="institusi_peminjam" id="institusi" class="form-control" 
-                           placeholder="Ketik nama unit..." 
-                           value="<?php echo $_SESSION['unit'] ?? ''; ?>" 
-                           autocomplete="off" required>
-                    
+                    <input type="text" name="institusi_peminjam" id="institusi" class="form-control" placeholder="Ketik nama unit..." value="<?php echo $_SESSION['unit'] ?? ''; ?>" autocomplete="off" required>
                     <div id="suggestion-box">
                         <div class="list-group list-group-flush">
-                            <?php 
-                            while ($inst = mysqli_fetch_array($query_institusi)) { 
-                                echo '<div class="list-group-item suggestion-item border-0">'.$inst['institusi_peminjam'].'</div>';
-                            } 
-                            ?>
+                            <?php while ($inst = mysqli_fetch_array($query_institusi)) { echo '<div class="list-group-item suggestion-item border-0">'.$inst['institusi_peminjam'].'</div>'; } ?>
                         </div>
                     </div>
-                    <small class="text-muted" style="font-size: 10px; margin-left:5px;">*Pilih saran atau ketik unit baru</small>
                 </div>
 
                 <div class="row">
@@ -112,12 +86,19 @@ $query_institusi = mysqli_query($koneksi, "SELECT DISTINCT institusi_peminjam FR
                     <textarea name="keperluan" class="form-control" rows="2" placeholder="Alasan peminjaman..." required></textarea>
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-3">
                     <label class="form-label">Gunakan Sopir?</label>
-                    <select name="pakai_sopir" class="form-select">
+                    <select name="pakai_sopir" id="sopir_select" class="form-select">
                         <option value="ya">Ya, Butuh Sopir Yayasan</option>
                         <option value="tidak">Tidak, Bawa Sopir Sendiri</option>
                     </select>
+                </div>
+
+                <!-- KOLOM SOPIR ALTERNATIF (Hidden by Default) -->
+                <div id="div_sopir_alt">
+                    <label class="form-label text-warning"><i class="bi bi-person-badge me-1"></i> Nama Sopir Alternatif</label>
+                    <input type="text" name="nama_sopir_alt" id="nama_sopir_alt" class="form-control" placeholder="Siapa yang akan menyetir?">
+                    <small class="text-muted mt-1 d-block" style="font-size: 10px;">*Admin akan memverifikasi kelayakan sopir tersebut.</small>
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow" style="border-radius: 15px;">
@@ -127,52 +108,42 @@ $query_institusi = mysqli_query($koneksi, "SELECT DISTINCT institusi_peminjam FR
         </div>
     </div>
 
-    <!-- Script Jquery di atas agar diproses duluan -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         $(document).ready(function() {
-            var input = $("#institusi");
-            var box = $("#suggestion-box");
-            var items = $(".suggestion-item");
-
-            input.on("keyup focus", function() {
-                var val = $(this).val().toLowerCase();
-                var matchCount = 0;
-
-                // Sembunyikan jika kosong
-                if (val.length === 0) {
-                    box.fadeOut(200);
-                    return;
-                }
-
-                items.each(function() {
-                    var text = $(this).text().toLowerCase();
-                    if (text.indexOf(val) > -1) {
-                        $(this).show();
-                        matchCount++;
-                    } else {
-                        $(this).hide();
-                    }
-                });
-
-                if (matchCount > 0) {
-                    box.fadeIn(200);
+            // LOGIKA TAMPILKAN SOPIR ALTERNATIF
+            $('#sopir_select').on('change', function() {
+                if($(this).val() === 'tidak') {
+                    $('#div_sopir_alt').slideDown();
+                    $('#nama_sopir_alt').attr('required', true);
                 } else {
-                    box.fadeOut(200);
+                    $('#div_sopir_alt').slideUp();
+                    $('#nama_sopir_alt').attr('required', false).val('');
                 }
             });
 
+            // LOGIKA AUTOCOMPLETE (Tetap sama)
+            var input = $("#institusi");
+            var box = $("#suggestion-box");
+            var items = $(".suggestion-item");
+            input.on("keyup focus", function() {
+                var val = $(this).val().toLowerCase();
+                if (val.length === 0) { box.fadeOut(200); return; }
+                var matchCount = 0;
+                items.each(function() {
+                    var text = $(this).text().toLowerCase();
+                    if (text.indexOf(val) > -1) { $(this).show(); matchCount++; } else { $(this).hide(); }
+                });
+                if (matchCount > 0) { box.fadeIn(200); } else { box.fadeOut(200); }
+            });
             $(document).on("click", ".suggestion-item", function() {
                 input.val($(this).text());
                 box.fadeOut(200);
             });
-
             $(document).on("click", function(e) {
-                if (!$(e.target).closest(".position-relative").length) {
-                    box.fadeOut(200);
-                }
+                if (!$(e.target).closest(".position-relative").length) { box.fadeOut(200); }
             });
         });
     </script>
