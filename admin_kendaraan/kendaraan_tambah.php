@@ -91,6 +91,9 @@ if ($_SESSION['role'] != "admin_kendaraan") {
                         <option value="MPV">MPV</option>
                         <option value="Minibus">Minibus</option>
                         <option value="Sedan">Sedan</option>
+                        <option value="SUV">SUV</option>
+                        <option value="Truck">Truck</option>
+                        <option value="Pickup">Pickup</option>
                         <option value="Motor">Motor/Roda 2</option>
                     </select>
                 </div>

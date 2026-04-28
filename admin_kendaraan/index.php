@@ -16,6 +16,7 @@ $count_mobil     = mysqli_num_rows(mysqli_query($koneksi, "SELECT id_kendaraan F
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,12 +25,41 @@ $count_mobil     = mysqli_num_rows(mysqli_query($koneksi, "SELECT id_kendaraan F
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; padding-bottom: 100px; }
-        .header-section { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; padding: 40px 20px 60px; border-radius: 0 0 40px 40px; }
-        .stat-card { border: none; border-radius: 20px; padding: 20px; background: #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: 0.3s; }
-        .icon-box { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 10px; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7f6;
+            padding-bottom: 100px;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+            padding: 40px 20px 60px;
+            border-radius: 0 0 40px 40px;
+        }
+
+        .stat-card {
+            border: none;
+            border-radius: 20px;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            transition: 0.3s;
+        }
+
+        .icon-box {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="header-section shadow text-center">
@@ -41,11 +71,11 @@ $count_mobil     = mysqli_num_rows(mysqli_query($koneksi, "SELECT id_kendaraan F
     </div>
 
     <div class="container mt-4">
-        <?php if($count_pending > 0) { ?>
-        <div class="alert alert-warning border-0 shadow-sm mx-2 mb-4 d-flex align-items-center" style="border-radius: 15px;">
-            <i class="bi bi-bell-fill fs-4 me-3"></i>
-            <small class="fw-bold">Ada <?php echo $count_pending; ?> pengajuan kendaraan menunggu konfirmasi!</small>
-        </div>
+        <?php if ($count_pending > 0) { ?>
+            <div class="alert alert-warning border-0 shadow-sm mx-2 mb-4 d-flex align-items-center" style="border-radius: 15px;">
+                <i class="bi bi-bell-fill fs-4 me-3"></i>
+                <small class="fw-bold">Ada <?php echo $count_pending; ?> pengajuan kendaraan menunggu konfirmasi!</small>
+            </div>
         <?php } ?>
 
         <div class="row g-3 px-2">
@@ -80,6 +110,14 @@ $count_mobil     = mysqli_num_rows(mysqli_query($koneksi, "SELECT id_kendaraan F
                     </div>
                 </div>
             </div>
+            <div class="col-12 mt-2">
+                <div class="stat-card" onclick="location.href='booking_manual.php'" style="background: #1e293b; color: #f59e0b; border: 1px solid #f59e0b;">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <i class="bi bi-plus-circle-fill fs-4 me-2"></i>
+                        <h6 class="fw-bold mb-0">Input Reservasi Pengurus</h6>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -88,4 +126,5 @@ $count_mobil     = mysqli_num_rows(mysqli_query($koneksi, "SELECT id_kendaraan F
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
