@@ -46,7 +46,7 @@ if (mysqli_query($koneksi, $sql)) {
     }
 
     // Susun Pesan WA (Menggunakan Jenis Permintaan, bukan merk mobil)
-    $pesan = "*PERMINTAAN ARMADA BARU*\n";
+    $pesan = "*PEMINJAMAN KENDARAAN*\n";
     $pesan .= "------------------\n";
     $pesan .= "Pemohon: $nama_user\n";
     $pesan .= "Unit: $institusi\n";

@@ -25,7 +25,7 @@ if (mysqli_query($koneksi, $sql)) {
     $wa_admin = preg_replace('/[^0-9]/', '', $sett['kontak_admin'] ?? '');
     if (substr($wa_admin, 0, 1) === '0') $wa_admin = '62' . substr($wa_admin, 1);
 
-    $pesan = "*PERMINTAAN GEDUNG BARU*\n";
+    $pesan = "*PENGAJUAN PEMINJAMAN*\n";
     $pesan .= "------------------\n";
     $pesan .= "Pemohon: $nama_user\n";
     $pesan .= "Unit: $institusi\n";
