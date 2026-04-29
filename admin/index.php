@@ -156,6 +156,15 @@ $count_user      = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM users 
                 </div>
             </div>
         </div>
+        <!-- Tombol Booking Manual (Baris Baru) -->
+        <div class="col-12 mt-2">
+            <div class="stat-card" onclick="location.href='booking_manual.php'" style="background: #1e293b; color: #38bdf8; border: 1px solid #38bdf8;">
+                <div class="d-flex align-items-center justify-content-center">
+                    <i class="bi bi-plus-circle-fill fs-4 me-2"></i>
+                    <h6 class="fw-bold mb-0">Booking Ruangan Langsung</h6>
+                </div>
+            </div>
+        </div>
 
         <!-- Kartu Identitas Admin -->
         <div class="card stat-card mx-2 mt-4 text-center">
@@ -166,6 +175,7 @@ $count_user      = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM users 
             </div>
         </div>
     </div>
+
 
     <!-- Floating Bottom Navigation (6 Items Optimized) -->
     <?php include 'navbar.php'; ?>

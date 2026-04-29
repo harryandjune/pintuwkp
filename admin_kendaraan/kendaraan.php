@@ -20,67 +20,28 @@ if ($_SESSION['role'] != "admin_kendaraan") {
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; padding-bottom: 100px; }
         .header-section { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; padding: 30px 20px 50px; border-radius: 0 0 30px 30px; margin-bottom: -30px; }
-        
-        /* DESAIN CARD BARU */
-        .car-card { 
-            border: none; 
-            border-radius: 25px; 
-            background: #fff; 
-            margin-bottom: 15px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.03); 
-            overflow: hidden; 
-            transition: all 0.3s ease;
-        }
-        
-        .car-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
-        }
-
+        .car-card { border: none; border-radius: 25px; background: #fff; margin-bottom: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); overflow: hidden; transition: all 0.3s ease; }
         .btn-add { border-radius: 15px; background: #f59e0b; border: none; color: #fff; font-weight: 600; padding: 10px 20px; }
-        
-        .plat-nomor {
-            background: #f8f9fa;
-            color: #1e293b;
-            font-weight: 600;
-            font-size: 12px;
-            padding: 4px 10px;
-            border-radius: 10px;
-            border: 1px solid #e2e8f0;
-            letter-spacing: 0.5px;
-        }
-
-        .spec-item {
-            background: #f8f9fa;
-            padding: 8px 12px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            color: #475569;
-            display: flex;
-            align-items: center;
-        }
-        
-        .spec-item i {
-            margin-right: 5px;
-            font-size: 14px;
-        }
+        .plat-nomor { background: #f8f9fa; color: #1e293b; font-weight: 600; font-size: 12px; padding: 4px 10px; border-radius: 10px; border: 1px solid #e2e8f0; letter-spacing: 0.5px; }
+        .spec-item { background: #f8f9fa; padding: 8px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; color: #475569; display: flex; align-items: center; }
+        .spec-item i { margin-right: 5px; font-size: 14px; }
+        .btn-action-sm { width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; transition: 0.2s; }
     </style>
 </head>
 <body>
 
     <div class="header-section shadow">
         <div class="container d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center text-start">
                 <a href="index.php" class="text-white me-3 fs-4"><i class="bi bi-arrow-left"></i></a>
                 <h4 class="fw-bold mb-0">Data Armada</h4>
             </div>
-            <a href="kendaraan_tambah.php" class="btn btn-add shadow-sm"><i class="bi bi-plus-lg"></i></a>
+            <a href="kendaraan_tambah.php" class="btn btn-add shadow-sm text-white"><i class="bi bi-plus-lg"></i></a>
         </div>
     </div>
 
     <div class="container mt-5">
-        <div class="px-2 mb-4">
+        <div class="px-2 mb-4 text-start">
             <h6 class="fw-bold mb-0 text-dark">Daftar Kendaraan Yayasan</h6>
             <small class="text-muted">Kelola status dan informasi mobil</small>
         </div>
@@ -94,51 +55,39 @@ if ($_SESSION['role'] != "admin_kendaraan") {
             while($d = mysqli_fetch_array($data)){
             ?>
             <div class="col-12 col-md-6">
-                <div class="card car-card">
+                <div class="card car-card text-start">
                     <div class="card-body p-4">
-                        
-                        <!-- Bagian Atas: Nama Mobil & Status -->
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
                                 <h5 class="fw-bold mb-1 text-dark"><?php echo $d['merk'] . " " . $d['model']; ?></h5>
                                 <span class="plat-nomor"><i class="bi bi-card-heading me-1"></i> <?php echo $d['nomor_plat']; ?></span>
                             </div>
-                            <?php if($d['status_kendaraan'] == 'tersedia') { ?>
-                                <span class="badge bg-success text-white" style="border-radius: 8px; font-size: 10px; padding: 6px 10px;">Tersedia</span>
-                            <?php } else { ?>
-                                <span class="badge bg-danger text-white" style="border-radius: 8px; font-size: 10px; padding: 6px 10px;">Perbaikan</span>
-                            <?php } ?>
+                            <span class="badge <?php echo ($d['status_kendaraan'] == 'tersedia' ? 'bg-success' : 'bg-danger'); ?> text-white" style="border-radius: 8px; font-size: 10px; padding: 6px 10px;">
+                                <?php echo strtoupper($d['status_kendaraan']); ?>
+                            </span>
                         </div>
                         
-                        <!-- Bagian Tengah: Spesifikasi Berjejer -->
                         <div class="d-flex flex-wrap gap-2 mb-4">
-                            <div class="spec-item">
-                                <i class="bi bi-people-fill text-warning"></i>
-                                <?php echo $d['kapasitas']; ?> Kursi
-                            </div>
-                            <div class="spec-item">
-                                <i class="bi bi-fuel-pump-fill text-warning"></i>
-                                <?php echo $d['jenis_kendaraan']; ?>
-                            </div>
-                            <div class="spec-item">
-                                <i class="bi bi-calendar-check-fill text-warning"></i>
-                                Th <?php echo $d['tahun_produksi']; ?>
-                            </div>
+                            <div class="spec-item"><i class="bi bi-people-fill text-warning"></i> <?php echo $d['kapasitas']; ?> Kursi</div>
+                            <div class="spec-item"><i class="bi bi-fuel-pump-fill text-warning"></i> <?php echo $d['jenis_kendaraan']; ?></div>
+                            <div class="spec-item"><i class="bi bi-calendar-check-fill text-warning"></i> Th <?php echo $d['tahun_produksi']; ?></div>
                         </div>
 
-                        <!-- Bagian Bawah: Aksi -->
                         <div class="d-flex justify-content-between align-items-center border-top pt-3">
-                            <small class="text-muted" style="font-size: 11px;">ID Kendaraan: #0<?php echo $d['id_kendaraan']; ?></small>
-                            <div>
+                            <small class="text-muted" style="font-size: 11px;">ID: #0<?php echo $d['id_kendaraan']; ?></small>
+                            <div class="d-flex gap-2">
+                                <!-- Tombol Edit -->
+                                <a href="kendaraan_edit.php?id=<?php echo $d['id_kendaraan']; ?>" class="btn btn-outline-primary btn-action-sm">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <!-- Tombol Hapus -->
                                 <a href="kendaraan_aksi.php?id=<?php echo $d['id_kendaraan']; ?>&aksi=hapus" 
-                                   class="btn btn-sm btn-outline-danger border-0" 
-                                   style="border-radius: 8px;"
-                                   onclick="return confirm('Yakin ingin hapus kendaraan ini?')">
+                                   class="btn btn-outline-danger btn-action-sm" 
+                                   onclick="return confirm('Hapus kendaraan ini?')">
                                     <i class="bi bi-trash-fill"></i>
                                 </a>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>

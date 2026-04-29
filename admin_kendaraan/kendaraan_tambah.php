@@ -90,11 +90,8 @@ if ($_SESSION['role'] != "admin_kendaraan") {
                     <select name="jenis_kendaraan" class="form-control" required>
                         <option value="MPV">MPV</option>
                         <option value="Minibus">Minibus</option>
-                        <option value="Sedan">Sedan</option>
-                        <option value="SUV">SUV</option>
-                        <option value="Truck">Truck</option>
-                        <option value="Pickup">Pickup</option>
-                        <option value="Motor">Motor/Roda 2</option>
+                        <option value="Pikap">Pikap</option>
+                        <option value="Motor">Motor</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-warning w-100 fw-bold py-3 text-dark shadow-sm" style="border-radius: 15px;">Simpan Kendaraan</button>

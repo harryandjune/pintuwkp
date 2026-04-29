@@ -16,7 +16,7 @@ $q_ruangan = mysqli_query($koneksi, "SELECT r.*, rm.nama_ruangan, rm.tipe
                                      WHERE r.user_id = '$user_id' 
                                      ORDER BY r.id DESC");
 
-// Query 2: Ambil Riwayat Kendaraan
+// Query 2: Ambil Riwayat Kendaraan (Pastikan nama_sopir_alt ikut terpanggil lewat r.*)
 $q_kendaraan = mysqli_query($koneksi, "SELECT r.*, k.merk, k.model, k.nomor_plat 
                                        FROM reservasi_kendaraan r 
                                        JOIN kendaraan k ON r.kendaraan_id = k.id_kendaraan 
@@ -45,14 +45,13 @@ $q_kendaraan = mysqli_query($koneksi, "SELECT r.*, k.merk, k.model, k.nomor_plat
         .history-card.pending { border-left-color: #ffc107; }
         .history-card.disetujui { border-left-color: #198754; }
         .history-card.ditolak { border-left-color: #dc3545; }
-        .history-card.selesai { border-left-color: #0d6efd; }
         .status-badge { font-size: 9px; padding: 4px 10px; border-radius: 8px; font-weight: 700; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
     <div class="header-section shadow">
-        <div class="container d-flex align-items-center">
+        <div class="container d-flex align-items-center text-start">
             <a href="index.php" class="text-white me-3 fs-4"><i class="bi bi-arrow-left"></i></a>
             <h4 class="fw-bold mb-0">Riwayat Saya</h4>
         </div>
@@ -64,6 +63,7 @@ $q_kendaraan = mysqli_query($koneksi, "SELECT r.*, k.merk, k.model, k.nomor_plat
             <button id="btn-h-kendaraan">Kendaraan</button>
         </div>
 
+        <!-- SECTION RIWAYAT RUANGAN -->
         <div id="section-h-ruangan">
             <?php if(mysqli_num_rows($q_ruangan) == 0) { ?>
                 <div class="text-center py-5 text-muted"><i class="bi bi-calendar-x fs-1"></i><p class="small">Belum ada riwayat ruangan.</p></div>
@@ -71,13 +71,12 @@ $q_kendaraan = mysqli_query($koneksi, "SELECT r.*, k.merk, k.model, k.nomor_plat
 
             <?php while($d = mysqli_fetch_array($q_ruangan)){ ?>
                 <div class="card history-card shadow-sm <?php echo $d['status']; ?>">
-                    <div class="card-body p-3">
+                    <div class="card-body p-3 text-start">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
                                 <small class="text-muted d-block" style="font-size: 10px;">ID #R-<?php echo $d['id']; ?></small>
-                                <h6 class="fw-bold mb-0 text-start"><?php echo $d['nama_ruangan']; ?></h6>
+                                <h6 class="fw-bold mb-0"><?php echo $d['nama_ruangan']; ?></h6>
                             </div>
-                            <!-- PERBAIKAN WARNA BADGE RUANGAN -->
                             <span class="status-badge <?php 
                                 if($d['status'] == 'pending') echo 'bg-warning text-dark';
                                 elseif($d['status'] == 'disetujui') echo 'bg-success text-white';
@@ -88,11 +87,11 @@ $q_kendaraan = mysqli_query($koneksi, "SELECT r.*, k.merk, k.model, k.nomor_plat
                             </span>
                         </div>
                         <div class="row mt-2 border-top pt-2">
-                            <div class="col-6 border-end text-start">
+                            <div class="col-6 border-end">
                                 <small class="text-muted d-block" style="font-size: 9px;">Waktu:</small>
                                 <small class="fw-bold text-primary"><?php echo date('d M Y', strtotime($d['tgl_pinjam'])); ?></small>
                             </div>
-                            <div class="col-6 ps-3 text-start">
+                            <div class="col-6 ps-3">
                                 <small class="text-muted d-block" style="font-size: 9px;">Institusi:</small>
                                 <small class="fw-bold d-block text-truncate"><?php echo $d['institusi_peminjam']; ?></small>
                             </div>
@@ -102,6 +101,7 @@ $q_kendaraan = mysqli_query($koneksi, "SELECT r.*, k.merk, k.model, k.nomor_plat
             <?php } ?>
         </div>
 
+        <!-- SECTION RIWAYAT KENDARAAN -->
         <div id="section-h-kendaraan" style="display: none;">
             <?php if(mysqli_num_rows($q_kendaraan) == 0) { ?>
                 <div class="text-center py-5 text-muted"><i class="bi bi-car-front fs-1"></i><p class="small">Belum ada riwayat kendaraan.</p></div>
@@ -109,14 +109,13 @@ $q_kendaraan = mysqli_query($koneksi, "SELECT r.*, k.merk, k.model, k.nomor_plat
 
             <?php while($k = mysqli_fetch_array($q_kendaraan)){ ?>
                 <div class="card history-card shadow-sm <?php echo $k['status']; ?>">
-                    <div class="card-body p-3">
+                    <div class="card-body p-3 text-start">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
                                 <small class="text-muted d-block" style="font-size: 10px;">ID #V-<?php echo $k['id']; ?></small>
-                                <h6 class="fw-bold mb-0 text-start"><?php echo $k['merk'].' '.$k['model']; ?></h6>
+                                <h6 class="fw-bold mb-0"><?php echo $k['merk'].' '.$k['model']; ?></h6>
                                 <small class="badge bg-light text-dark border" style="font-size: 10px; font-family: monospace;"><?php echo $k['nomor_plat']; ?></small>
                             </div>
-                            <!-- PERBAIKAN WARNA BADGE KENDARAAN -->
                             <span class="status-badge <?php 
                                 if($k['status'] == 'pending') echo 'bg-warning text-dark';
                                 elseif($k['status'] == 'disetujui') echo 'bg-success text-white';
@@ -127,13 +126,25 @@ $q_kendaraan = mysqli_query($koneksi, "SELECT r.*, k.merk, k.model, k.nomor_plat
                             </span>
                         </div>
                         <div class="row mt-2 border-top pt-2">
-                            <div class="col-6 border-end text-start">
+                            <div class="col-6 border-end">
                                 <small class="text-muted d-block" style="font-size: 9px;">Tujuan:</small>
                                 <small class="fw-bold text-primary d-block text-truncate"><?php echo $k['tujuan']; ?></small>
                             </div>
-                            <div class="col-6 ps-3 text-start">
+                            <div class="col-6 ps-3">
                                 <small class="text-muted d-block" style="font-size: 9px;">Sopir:</small>
-                                <small class="fw-bold"><?php echo ($k['pakai_sopir'] == 'ya' ? 'Sopir Yayasan' : 'Bawa Sendiri'); ?></small>
+                                <small class="fw-bold">
+                                    <?php 
+                                    if($k['pakai_sopir'] == 'ya') {
+                                        echo "Sopir Yayasan";
+                                    } else {
+                                        echo "Bawa Sendiri";
+                                        // Tampilkan nama sopir alternatif jika ada
+                                        if(!empty($k['nama_sopir_alt'])) {
+                                            echo "<br><span class='text-muted' style='font-size:8px;'>(".htmlspecialchars($k['nama_sopir_alt']).")</span>";
+                                        }
+                                    }
+                                    ?>
+                                </small>
                             </div>
                         </div>
                     </div>

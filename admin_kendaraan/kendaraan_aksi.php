@@ -24,6 +24,30 @@ if($aksi == "tambah"){
     header("location:kendaraan.php");
     exit();
 
+} elseif($aksi == "edit"){
+    $id     = mysqli_real_escape_string($koneksi, $_POST['id_kendaraan']);
+    $plat   = mysqli_real_escape_string($koneksi, $_POST['nomor_plat']);
+    $merk   = mysqli_real_escape_string($koneksi, $_POST['merk']);
+    $model  = mysqli_real_escape_string($koneksi, $_POST['model']);
+    $tahun  = mysqli_real_escape_string($koneksi, $_POST['tahun_produksi']);
+    $jenis  = mysqli_real_escape_string($koneksi, $_POST['jenis_kendaraan']);
+    $kap    = mysqli_real_escape_string($koneksi, $_POST['kapasitas']);
+    $status = mysqli_real_escape_string($koneksi, $_POST['status_kendaraan']);
+
+    $query = "UPDATE kendaraan SET 
+              nomor_plat = '$plat',
+              merk = '$merk',
+              model = '$model',
+              tahun_produksi = '$tahun',
+              jenis_kendaraan = '$jenis',
+              kapasitas = '$kap',
+              status_kendaraan = '$status'
+              WHERE id_kendaraan = '$id'";
+    
+    mysqli_query($koneksi, $query);
+    header("location:kendaraan.php");
+    exit();
+
 } elseif($aksi == "hapus"){
     $id = mysqli_real_escape_string($koneksi, $_GET['id']);
     mysqli_query($koneksi, "DELETE FROM kendaraan WHERE id_kendaraan='$id'");
