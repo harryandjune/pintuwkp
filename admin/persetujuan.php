@@ -20,11 +20,8 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Persetujuan - <?php echo $sett['nama_sistem']; ?></title>
     <link rel="icon" type="image/x-icon" href="../assets/img/<?php echo $sett['favicon']; ?>">
-    <!-- CDN Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- Google Font: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
@@ -36,6 +33,7 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
         .btn-action { border-radius: 12px; font-size: 13px; font-weight: 600; padding: 10px; }
         .btn-wa { color: #25D366; text-decoration: none; font-size: 14px; transition: 0.3s; }
         .btn-wa:hover { color: #128C7E; }
+        .info-box { background: #f8f9fa; border-radius: 12px; padding: 12px; font-size: 12px; }
     </style>
 </head>
 
@@ -44,7 +42,7 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
     <div class="header-section shadow">
         <div class="container d-flex align-items-center">
             <a href="index.php" class="text-white me-3 fs-4"><i class="bi bi-arrow-left"></i></a>
-            <h4 class="fw-bold mb-0">Persetujuan</h4>
+            <h4 class="fw-bold mb-0 text-white">Persetujuan</h4>
         </div>
     </div>
 
@@ -58,7 +56,6 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
         </div>
 
         <?php
-        // QUERY: Menggunakan LEFT JOIN agar data dengan ruangan_id NULL tetap muncul
         $query = "SELECT r.*, u.nama_lengkap, u.unit, u.no_wa, rm.nama_ruangan 
                   FROM reservasi r 
                   JOIN users u ON r.user_id = u.id 
@@ -67,18 +64,12 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
 
         $data = mysqli_query($koneksi, $query);
 
-        if (mysqli_num_rows($data) == 0) {
-            echo '<div class="text-center py-5 text-muted"><i class="bi bi-inbox fs-1 d-block mb-2"></i>Belum ada data.</div>';
-        }
-
         while ($d = mysqli_fetch_array($data)) {
-            // Normalisasi WA
             $phone = preg_replace('/[^0-9]/', '', $d['no_wa'] ?? '');
             if (!empty($phone)) {
                 if (substr($phone, 0, 1) === '0') { $phone = '62' . substr($phone, 1); }
                 elseif (substr($phone, 0, 1) === '8') { $phone = '62' . $phone; }
             }
-
             $message = urlencode("Assalamualaikum, Akh " . $d['nama_lengkap'] . ", saya Admin " . $sett['nama_sistem'] . " ingin konfirmasi terkait pengajuan " . $d['tipe_permintaan']);
         ?>
 
@@ -87,18 +78,14 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
                             <span class="unit-badge mb-1 d-inline-block text-primary">
-                                <i class="bi bi-briefcase me-1"></i> <?php echo $d['institusi_peminjam']; ?>
+                                <i class="bi bi-briefcase me-1"></i> <?php echo htmlspecialchars($d['institusi_peminjam']); ?>
                             </span>
-                            <!-- Menampilkan Nama Ruangan jika sudah ada, atau Jenis yang diminta jika masih NULL -->
                             <h6 class="fw-bold mb-0">
-                                <?php echo ($d['ruangan_id'] ? $d['nama_ruangan'] : "Pinjam: ".str_replace('_',' ', strtoupper($d['tipe_permintaan']))); ?>
+                                <?php echo ($d['ruangan_id'] ? htmlspecialchars($d['nama_ruangan']) : "Pinjam: ".str_replace('_',' ', strtoupper($d['tipe_permintaan']))); ?>
                             </h6>
-                            <small class="text-muted" style="font-size: 11px;">
-                                PIC: <?php echo $d['nama_lengkap']; ?>
+                            <small class="text-muted">PIC: <?php echo htmlspecialchars($d['nama_lengkap']); ?>
                                 <?php if ($phone) { ?>
-                                    <a href="https://wa.me/<?php echo $phone; ?>?text=<?php echo $message; ?>" target="_blank" class="btn-wa ms-1">
-                                        <i class="bi bi-whatsapp"></i>
-                                    </a>
+                                    <a href="https://wa.me/<?php echo $phone; ?>?text=<?php echo $message; ?>" target="_blank" class="btn-wa ms-1"><i class="bi bi-whatsapp"></i></a>
                                 <?php } ?>
                             </small>
                         </div>
@@ -109,34 +96,36 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                         ?>
                     </div>
 
-                    <div class="bg-light p-2 rounded-3 mb-3" style="font-size: 12px;">
-                        <div class="d-flex mb-1">
-                            <i class="bi bi-calendar3 me-2 text-primary"></i>
-                            <span>
-                                <?php
-                                echo date('d M Y', strtotime($d['tgl_pinjam']));
-                                if ($d['tipe_permintaan'] == 'meeting_room') {
-                                    echo " (" . substr($d['jam_mulai'], 0, 5) . "-" . substr($d['jam_selesai'], 0, 5) . ")";
-                                }
-                                ?>
-                            </span>
+                    <div class="info-box mb-3">
+                        <div class="row mb-2">
+                            <div class="col-7 border-end">
+                                <small class="text-muted d-block">Waktu Penggunaan:</small>
+                                <small class="fw-bold">
+                                    <?php echo date('d M Y', strtotime($d['tgl_pinjam'])); ?>
+                                    <?php if ($d['tipe_permintaan'] == 'meeting_room') echo "<br>(" . substr($d['jam_mulai'], 0, 5) . " - " . substr($d['jam_selesai'], 0, 5) . ")"; ?>
+                                </small>
+                            </div>
+                            <!-- TAMBAHAN INFO JUMLAH ORANG -->
+                            <div class="col-5 ps-3">
+                                <small class="text-muted d-block">Kapasitas Diminta:</small>
+                                <small class="fw-bold text-primary"><i class="bi bi-people-fill me-1"></i> <?php echo $d['jumlah_orang']; ?> Orang</small>
+                            </div>
                         </div>
-                        <div class="d-flex">
-                            <i class="bi bi-chat-left-text me-2 text-primary"></i>
-                            <span class="text-truncate"><?php echo $d['keperluan']; ?></span>
+                        <div class="mt-2 border-top pt-2">
+                            <small class="text-muted d-block text-uppercase" style="font-size: 9px; font-weight: 700;">Keperluan:</small>
+                            <span class="text-dark" style="line-height: 1.2;"><?php echo htmlspecialchars($d['keperluan']); ?></span>
                         </div>
                     </div>
 
                     <?php if ($d['status'] == 'pending') { ?>
                         <div class="row g-2">
                             <div class="col-12">
-                                <!-- TRIGGER MODAL -->
-                                <button class="btn btn-success btn-action w-100 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalSetujui<?php echo $d['id']; ?>">
+                                <button class="btn btn-success btn-action w-100 shadow-sm text-white" data-bs-toggle="modal" data-bs-target="#modalSetujui<?php echo $d['id']; ?>">
                                     <i class="bi bi-check-circle me-1"></i> Pilih Ruang & Setujui
                                 </button>
                             </div>
-                            <div class="col-12">
-                                <a href="persetujuan_aksi.php?id=<?php echo $d['id']; ?>&status=ditolak" class="btn btn-outline-danger btn-action w-100 border-0" onclick="return confirm('Tolak?')">Tolak</a>
+                            <div class="col-12 text-center">
+                                <a href="persetujuan_aksi.php?id=<?php echo $d['id']; ?>&status=ditolak" class="btn btn-link text-danger text-decoration-none small" onclick="return confirm('Tolak?')">Tolak Pengajuan</a>
                             </div>
                         </div>
 
@@ -148,24 +137,40 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                                         <h6 class="fw-bold mb-0">Alokasikan Unit Ruangan</h6>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
-                                    <div class="modal-body pt-3">
+                                    <div class="modal-body pt-3 text-start">
                                         <input type="hidden" name="id" value="<?php echo $d['id']; ?>">
                                         <input type="hidden" name="status" value="disetujui">
                                         
-                                        <p class="small text-muted mb-3">User memerlukan: <b class="text-primary"><?php echo str_replace('_', ' ', strtoupper($d['tipe_permintaan'])); ?></b></p>
+                                        <p class="small text-muted mb-3">Unit: <b class="text-primary"><?php echo str_replace('_', ' ', strtoupper($d['tipe_permintaan'])); ?></b> (Peserta: <?php echo $d['jumlah_orang']; ?> Org)</p>
                                         
-                                        <label class="small fw-bold mb-1">Daftar Ruangan Tersedia:</label>
+                                        <label class="small fw-bold mb-1">Daftar Ruangan:</label>
                                         <select name="ruangan_id" class="form-select mb-3" style="border-radius: 12px;" required>
                                             <option value="">-- Pilih Ruangan --</option>
                                             <?php 
                                             $tipe_req = $d['tipe_permintaan'];
+                                            $start_req = $d['tgl_pinjam'];
+                                            $end_req   = $d['tgl_selesai'];
+
+                                            $q_busy = mysqli_query($koneksi, "SELECT ruangan_id FROM reservasi 
+                                                                              WHERE status = 'disetujui' 
+                                                                              AND ruangan_id IS NOT NULL 
+                                                                              AND (tgl_pinjam <= '$end_req' AND tgl_selesai >= '$start_req')");
+                                            $busy_ids = [];
+                                            while($busy = mysqli_fetch_assoc($q_busy)){
+                                                $busy_ids[] = $busy['ruangan_id'];
+                                            }
+
                                             $q_room = mysqli_query($koneksi, "SELECT * FROM ruangan WHERE tipe='$tipe_req' ORDER BY nama_ruangan ASC");
                                             while($rm = mysqli_fetch_array($q_room)){
-                                                echo "<option value='".$rm['id']."'>".$rm['nama_ruangan']." (Kapasitas: ".$rm['kapasitas'].")</option>";
+                                                $is_busy = in_array($rm['id'], $busy_ids);
+                                                $label_status = $is_busy ? " [⚠️ TERPAKAI]" : " [READY]";
+                                                $color_style = $is_busy ? "style='color: red; font-weight:bold;'" : "";
+                                                
+                                                echo "<option value='".$rm['id']."' $color_style>".$rm['nama_ruangan']." (Kaps: ".$rm['kapasitas'].") $label_status</option>";
                                             }
                                             ?>
                                         </select>
-                                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" style="border-radius: 12px;">Konfirmasi & Setujui</button>
+                                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold text-white shadow" style="border-radius: 12px;">Konfirmasi & Setujui</button>
                                     </div>
                                 </form>
                             </div>

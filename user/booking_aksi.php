@@ -37,13 +37,14 @@ if (mysqli_query($koneksi, $sql)) {
         $waktu_info = $tgl_f . " s.d " . date('d/m/Y', strtotime($tgl_selesai));
     }
 
-    // 3. Susun Pesan WA
+    // 3. Susun Pesan WA (Termasuk Jumlah Peserta)
     $pesan = "*PENGAJUAN PENGGUNAAN LAYANAN*\n";
     $pesan .= "------------------\n";
     $pesan .= "Pemohon: *$nama_user*\n";
     $pesan .= "Unit/Instansi: $institusi\n";
     $pesan .= "Layanan: *" . strtoupper(str_replace('_', ' ', $tipe)) . "*\n";
     $pesan .= "Waktu: $waktu_info\n";
+    $pesan .= "Jumlah Peserta: *$jml_orang Orang*\n"; // PENAMBAHAN INFO PESERTA
     $pesan .= "Keperluan: $keperluan\n";
     $pesan .= "------------------\n";
     $pesan .= "Mohon admin segera menentukan ruangan melalui dashboard.";
