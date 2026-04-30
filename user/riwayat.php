@@ -9,17 +9,17 @@ if($_SESSION['role'] != "user") {
 
 $user_id = $_SESSION['id_user'];
 
-// Query 1: Ambil Riwayat Ruangan
-$q_ruangan = mysqli_query($koneksi, "SELECT r.*, rm.nama_ruangan, rm.tipe 
+// Query 1: Ambil Riwayat Ruangan (Gunakan LEFT JOIN agar data NULL/Pending tetap muncul)
+$q_ruangan = mysqli_query($koneksi, "SELECT r.*, rm.nama_ruangan 
                                      FROM reservasi r 
-                                     JOIN ruangan rm ON r.ruangan_id = rm.id 
+                                     LEFT JOIN ruangan rm ON r.ruangan_id = rm.id 
                                      WHERE r.user_id = '$user_id' 
                                      ORDER BY r.id DESC");
 
-// Query 2: Ambil Riwayat Kendaraan (Pastikan nama_sopir_alt ikut terpanggil lewat r.*)
+// Query 2: Ambil Riwayat Kendaraan (Gunakan LEFT JOIN agar data NULL/Pending tetap muncul)
 $q_kendaraan = mysqli_query($koneksi, "SELECT r.*, k.merk, k.model, k.nomor_plat 
                                        FROM reservasi_kendaraan r 
-                                       JOIN kendaraan k ON r.kendaraan_id = k.id_kendaraan 
+                                       LEFT JOIN kendaraan k ON r.kendaraan_id = k.id_kendaraan 
                                        WHERE r.user_id = '$user_id' 
                                        ORDER BY r.id DESC");
 ?>
@@ -75,13 +75,17 @@ $q_kendaraan = mysqli_query($koneksi, "SELECT r.*, k.merk, k.model, k.nomor_plat
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
                                 <small class="text-muted d-block" style="font-size: 10px;">ID #R-<?php echo $d['id']; ?></small>
-                                <h6 class="fw-bold mb-0"><?php echo $d['nama_ruangan']; ?></h6>
+                                <h6 class="fw-bold mb-0">
+                                    <?php 
+                                    // Jika sudah disetujui tampilkan nama ruang, jika belum tampilkan jenis permintaan
+                                    echo ($d['ruangan_id'] ? $d['nama_ruangan'] : "Pinjam: ".str_replace('_',' ', strtoupper($d['tipe_permintaan']))); 
+                                    ?>
+                                </h6>
                             </div>
                             <span class="status-badge <?php 
                                 if($d['status'] == 'pending') echo 'bg-warning text-dark';
                                 elseif($d['status'] == 'disetujui') echo 'bg-success text-white';
-                                elseif($d['status'] == 'ditolak') echo 'bg-danger text-white';
-                                else echo 'bg-info text-white';
+                                else echo 'bg-danger text-white';
                             ?>">
                                 <?php echo $d['status']; ?>
                             </span>
@@ -113,14 +117,20 @@ $q_kendaraan = mysqli_query($koneksi, "SELECT r.*, k.merk, k.model, k.nomor_plat
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
                                 <small class="text-muted d-block" style="font-size: 10px;">ID #V-<?php echo $k['id']; ?></small>
-                                <h6 class="fw-bold mb-0"><?php echo $k['merk'].' '.$k['model']; ?></h6>
-                                <small class="badge bg-light text-dark border" style="font-size: 10px; font-family: monospace;"><?php echo $k['nomor_plat']; ?></small>
+                                <h6 class="fw-bold mb-0">
+                                    <?php 
+                                    // Jika sudah disetujui tampilkan merk mobil, jika belum tampilkan jenis permintaan
+                                    echo ($k['kendaraan_id'] ? $k['merk'].' '.$k['model'] : "Pinjam: ".$k['jenis_permintaan']); 
+                                    ?>
+                                </h6>
+                                <?php if($k['kendaraan_id']) { ?>
+                                    <small class="badge bg-light text-dark border" style="font-size: 10px; font-family: monospace;"><?php echo $k['nomor_plat']; ?></small>
+                                <?php } ?>
                             </div>
                             <span class="status-badge <?php 
                                 if($k['status'] == 'pending') echo 'bg-warning text-dark';
                                 elseif($k['status'] == 'disetujui') echo 'bg-success text-white';
-                                elseif($k['status'] == 'ditolak') echo 'bg-danger text-white';
-                                else echo 'bg-info text-white';
+                                else echo 'bg-danger text-white';
                             ?>">
                                 <?php echo $k['status']; ?>
                             </span>
@@ -134,15 +144,8 @@ $q_kendaraan = mysqli_query($koneksi, "SELECT r.*, k.merk, k.model, k.nomor_plat
                                 <small class="text-muted d-block" style="font-size: 9px;">Sopir:</small>
                                 <small class="fw-bold">
                                     <?php 
-                                    if($k['pakai_sopir'] == 'ya') {
-                                        echo "Sopir Yayasan";
-                                    } else {
-                                        echo "Bawa Sendiri";
-                                        // Tampilkan nama sopir alternatif jika ada
-                                        if(!empty($k['nama_sopir_alt'])) {
-                                            echo "<br><span class='text-muted' style='font-size:8px;'>(".htmlspecialchars($k['nama_sopir_alt']).")</span>";
-                                        }
-                                    }
+                                    if($k['pakai_sopir'] == 'ya') { echo "Sopir Yayasan"; } 
+                                    else { echo "Bawa Sendiri"; if(!empty($k['nama_sopir_alt'])) { echo "<br><span class='text-muted' style='font-size:8px;'>(".htmlspecialchars($k['nama_sopir_alt']).")</span>"; } }
                                     ?>
                                 </small>
                             </div>
@@ -160,16 +163,12 @@ $q_kendaraan = mysqli_query($koneksi, "SELECT r.*, k.merk, k.model, k.nomor_plat
     <script>
         $(document).ready(function() {
             $('#btn-h-ruangan').click(function() {
-                $(this).addClass('active');
-                $('#btn-h-kendaraan').removeClass('active');
-                $('#section-h-kendaraan').hide();
-                $('#section-h-ruangan').fadeIn();
+                $(this).addClass('active'); $('#btn-h-kendaraan').removeClass('active');
+                $('#section-h-kendaraan').hide(); $('#section-h-ruangan').fadeIn();
             });
             $('#btn-h-kendaraan').click(function() {
-                $(this).addClass('active');
-                $('#btn-h-ruangan').removeClass('active');
-                $('#section-h-ruangan').hide();
-                $('#section-h-kendaraan').fadeIn();
+                $(this).addClass('active'); $('#btn-h-ruangan').removeClass('active');
+                $('#section-h-ruangan').hide(); $('#section-h-kendaraan').fadeIn();
             });
         });
     </script>

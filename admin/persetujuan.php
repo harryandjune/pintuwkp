@@ -91,7 +91,7 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                             </span>
                             <!-- Menampilkan Nama Ruangan jika sudah ada, atau Jenis yang diminta jika masih NULL -->
                             <h6 class="fw-bold mb-0">
-                                <?php echo ($d['ruangan_id'] ? $d['nama_ruangan'] : "Minta: ".str_replace('_',' ', strtoupper($d['tipe_permintaan']))); ?>
+                                <?php echo ($d['ruangan_id'] ? $d['nama_ruangan'] : "Pinjam: ".str_replace('_',' ', strtoupper($d['tipe_permintaan']))); ?>
                             </h6>
                             <small class="text-muted" style="font-size: 11px;">
                                 PIC: <?php echo $d['nama_lengkap']; ?>

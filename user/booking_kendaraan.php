@@ -147,7 +147,7 @@ $query_institusi = mysqli_query($koneksi, "SELECT DISTINCT institusi_peminjam FR
                         <option value="">-- Pilih Jenis --</option>
                         <option value="MPV">MPV (Avanza/Innova)</option>
                         <option value="Minibus">Minibus (Hiace/Elf)</option>
-                        <option value="Pikap">Pikap / Box</option>
+                        <option value="Pikap">Pikap</option>
                         <option value="Motor">Motor</option>
                     </select>
                 </div>

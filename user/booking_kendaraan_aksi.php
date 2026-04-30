@@ -52,6 +52,7 @@ if (mysqli_query($koneksi, $sql)) {
     $pesan .= "Unit: $institusi\n";
     $pesan .= "Jenis Dibutuhkan: *$jenis_permintaan*\n";
     $pesan .= "Tujuan: $tujuan\n";
+    $pesan .= "Keperluan: $keperluan\n";
     $pesan .= "Waktu: ".date('d/m/Y H:i', strtotime($tgl_mulai))." s.d ".date('d/m/Y H:i', strtotime($tgl_selesai))."\n";
     $pesan .= "Sopir: $ket_sopir\n";
     $pesan .= "------------------\n";

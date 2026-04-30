@@ -165,9 +165,22 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                                         <select name="kendaraan_id" class="form-select mb-3" style="border-radius: 12px;" required>
                                             <option value="">-- Pilih Armada --</option>
                                             <?php
-                                            $jenis = $d['jenis_permintaan']; // Diambil dari data reservasi
+                                            $jenis = $d['jenis_permintaan'];
+                                            $start_req = $d['tgl_mulai'];
+                                            $end_req   = $d['tgl_selesai'];
 
-                                            // Ambil mobil yang JENIS-nya sesuai permintaan DAN STATUS-nya 'tersedia'
+                                            // 1. Cari tahu mobil mana saja yang sudah ada jadwal "disetujui" di jam tersebut
+                                            $q_busy = mysqli_query($koneksi, "SELECT kendaraan_id FROM reservasi_kendaraan 
+                                      WHERE status = 'disetujui' 
+                                      AND kendaraan_id IS NOT NULL 
+                                      AND (tgl_mulai < '$end_req' AND tgl_selesai > '$start_req')");
+
+                                            $busy_ids = [];
+                                            while ($busy = mysqli_fetch_assoc($q_busy)) {
+                                                $busy_ids[] = $busy['kendaraan_id'];
+                                            }
+
+                                            // 2. Tampilkan semua mobil yang jenisnya cocok
                                             $q_mobil = mysqli_query($koneksi, "SELECT * FROM kendaraan 
                                        WHERE jenis_kendaraan = '$jenis' 
                                        AND status_kendaraan = 'tersedia' 
@@ -175,11 +188,17 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
 
                                             if (mysqli_num_rows($q_mobil) > 0) {
                                                 while ($m = mysqli_fetch_array($q_mobil)) {
-                                                    echo "<option value='" . $m['id_kendaraan'] . "'>" . $m['merk'] . " " . $m['model'] . " (" . $m['nomor_plat'] . ")</option>";
+                                                    // Cek apakah ID mobil ini ada di daftar mobil "Sibuk"
+                                                    $is_busy = in_array($m['id_kendaraan'], $busy_ids);
+
+                                                    // Beri label jika sedang dipakai, tapi JANGAN di-disable agar admin tetap bisa pilih
+                                                    $label_status = $is_busy ? " [⚠️ SEDANG DIPAKAI]" : " [READY]";
+                                                    $color_style = $is_busy ? "style='color: red;'" : "";
+
+                                                    echo "<option value='" . $m['id_kendaraan'] . "' $color_style>" . $m['merk'] . " " . $m['model'] . " (" . $m['nomor_plat'] . ")" . $label_status . "</option>";
                                                 }
                                             } else {
-                                                // Jika jenis yang diminta habis/tidak ada, tampilkan pesan peringatan
-                                                echo "<option value='' disabled>Maaf, jenis $jenis saat ini tidak tersedia</option>";
+                                                echo "<option value='' disabled>Maaf, jenis $jenis tidak ada dalam aset</option>";
                                             }
                                             ?>
                                         </select>
