@@ -1,4 +1,17 @@
 <?php
+
+// Matikan tampilan error ke layar publik
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+
+// Laporkan semua jenis error tapi jangan ditampilkan
+error_reporting(E_ALL);
+
+// Aktifkan pencatatan error ke file (Log)
+ini_set('log_errors', 1);
+
+// Tentukan lokasi file catatan error (pastikan folder ini ada)
+ini_set('error_log', __DIR__ . '/../error_log.txt');
 $host = "localhost";
 $user = "root";
 $pass = ""; 

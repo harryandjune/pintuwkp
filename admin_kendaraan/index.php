@@ -8,10 +8,21 @@ if ($_SESSION['role'] != "admin_kendaraan") {
     exit();
 }
 
-// Ambil statistik khusus kendaraan
+// 1. HITUNG STATISTIK UTAMA
 $count_pending   = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservasi_kendaraan WHERE status='pending'"));
 $count_approved  = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservasi_kendaraan WHERE status='disetujui'"));
 $count_mobil     = mysqli_num_rows(mysqli_query($koneksi, "SELECT id_kendaraan FROM kendaraan"));
+
+// 2. TAMBAHAN 3 STATISTIK BARU
+// A. Jadwal Perjalanan Hari Ini
+$tgl_sekarang = date('Y-m-d');
+$count_today = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservasi_kendaraan WHERE DATE(tgl_mulai) = '$tgl_sekarang' AND status='disetujui'"));
+
+// B. Total Perjalanan Selesai (Arsip)
+$count_finished = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservasi_kendaraan WHERE status='selesai'"));
+
+// C. Total Pengajuan Ditolak
+$count_rejected = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservasi_kendaraan WHERE status='ditolak'"));
 ?>
 
 <!DOCTYPE html>
@@ -21,106 +32,116 @@ $count_mobil     = mysqli_num_rows(mysqli_query($koneksi, "SELECT id_kendaraan F
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Transport - <?php echo $sett['nama_sistem']; ?></title>
+    <link rel="icon" type="image/x-icon" href="../assets/img/<?php echo $sett['favicon']; ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f7f6;
-            padding-bottom: 100px;
-        }
+        body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; padding-bottom: 120px; }
+        .header-section { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; padding: 40px 20px 60px; border-radius: 0 0 40px 40px; }
+        
+        .stat-card { border: none; border-radius: 25px; padding: 20px; background: #fff; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); transition: 0.3s; text-align: center; height: 100%; }
+        .stat-card:active { transform: scale(0.95); }
 
-        .header-section {
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            color: white;
-            padding: 40px 20px 60px;
-            border-radius: 0 0 40px 40px;
-        }
+        .icon-box { width: 50px; height: 50px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 10px; }
+        
+        /* Warna Ikon */
+        .bg-pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .bg-active  { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .bg-today   { background: rgba(14, 165, 233, 0.1); color: #0ea5e9; }
+        .bg-done    { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
+        .bg-reject  { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .bg-fleet   { background: rgba(30, 41, 59, 0.1); color: #1e293b; }
 
-        .stat-card {
-            border: none;
-            border-radius: 20px;
-            padding: 20px;
-            background: #fff;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-            transition: 0.3s;
-        }
-
-        .icon-box {
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
+        .count-number { font-size: 22px; font-weight: 700; color: #1e293b; margin-bottom: 0; }
+        .stat-label { font-size: 10px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
     </style>
 </head>
 
 <body>
 
+    <!-- Header -->
     <div class="header-section shadow text-center">
         <h6 class="opacity-75 mb-1">Manajemen Transportasi</h6>
-        <h4 class="fw-bold">PINTU WKP</h4>
-        <div class="mt-3 badge bg-warning text-dark px-3 py-2 rounded-pill">
-            <i class="bi bi-person-badge-fill me-2"></i> <?php echo $_SESSION['nama']; ?>
-        </div>
+        <h4 class="fw-bold"><?php echo $sett['nama_sistem']; ?></h4>
+        <a href="profil.php" class="text-decoration-none">
+            <div class="mt-3 badge bg-warning text-dark px-3 py-2 rounded-pill shadow-sm">
+                <i class="bi bi-person-circle me-2"></i> <?php echo $_SESSION['nama']; ?>
+            </div>
+        </a>
     </div>
 
-    <div class="container mt-4">
+    <div class="container mt-n4" style="margin-top: -30px;">
         <?php if ($count_pending > 0) { ?>
             <div class="alert alert-warning border-0 shadow-sm mx-2 mb-4 d-flex align-items-center" style="border-radius: 15px;">
                 <i class="bi bi-bell-fill fs-4 me-3"></i>
-                <small class="fw-bold">Ada <?php echo $count_pending; ?> pengajuan kendaraan menunggu konfirmasi!</small>
+                <small class="fw-bold">Ada <?php echo $count_pending; ?> pengajuan menunggu konfirmasi!</small>
             </div>
         <?php } ?>
 
+        <!-- Grid Statistik 2x2 -->
         <div class="row g-3 px-2">
+            <!-- 1. PENDING -->
             <div class="col-6">
-                <div class="stat-card" onclick="location.href='persetujuan.php'">
-                    <div class="icon-box bg-warning text-white shadow-sm">
-                        <i class="bi bi-hourglass-split"></i>
-                    </div>
-                    <h4 class="fw-bold mb-0"><?php echo $count_pending; ?></h4>
-                    <small class="text-muted">Pending</small>
+                <div class="stat-card shadow-sm" onclick="location.href='persetujuan.php'">
+                    <div class="icon-box bg-pending"><i class="bi bi-hourglass-split"></i></div>
+                    <div class="count-number"><?php echo $count_pending; ?></div>
+                    <div class="stat-label">Pending</div>
                 </div>
             </div>
+            <!-- 2. HARI INI -->
             <div class="col-6">
-                <div class="stat-card">
-                    <div class="icon-box bg-success text-white shadow-sm">
-                        <i class="bi bi-check2-circle"></i>
-                    </div>
-                    <h4 class="fw-bold mb-0"><?php echo $count_approved; ?></h4>
-                    <small class="text-muted">Aktif</small>
+                <div class="stat-card shadow-sm" onclick="location.href='kalender.php'">
+                    <div class="icon-box bg-today"><i class="bi bi-calendar-check"></i></div>
+                    <div class="count-number"><?php echo $count_today; ?></div>
+                    <div class="stat-label">Hari Ini</div>
                 </div>
             </div>
-            <div class="col-12">
-                <div class="stat-card" onclick="location.href='kendaraan.php'">
-                    <div class="d-flex align-items-center">
-                        <div class="icon-box bg-primary text-white shadow-sm mb-0 me-3">
-                            <i class="bi bi-car-front"></i>
-                        </div>
-                        <div>
-                            <h4 class="fw-bold mb-0"><?php echo $count_mobil; ?> Armada</h4>
-                            <small class="text-muted">Kelola Data Kendaraan</small>
-                        </div>
-                    </div>
+            <!-- 3. DISETUJUI / AKTIF -->
+            <div class="col-6">
+                <div class="stat-card shadow-sm">
+                    <div class="icon-box bg-active"><i class="bi bi-play-circle"></i></div>
+                    <div class="count-number"><?php echo $count_approved; ?></div>
+                    <div class="stat-label">Aktif</div>
                 </div>
             </div>
-            <div class="col-12 mt-2">
-                <div class="stat-card" onclick="location.href='booking_manual.php'" style="background: #1e293b; color: #f59e0b; border: 1px solid #f59e0b;">
-                    <div class="d-flex align-items-center justify-content-center">
-                        <i class="bi bi-plus-circle-fill fs-4 me-2"></i>
-                        <h6 class="fw-bold mb-0">Input Reservasi Pengurus</h6>
-                    </div>
+            <!-- 4. SELESAI -->
+            <div class="col-6">
+                <div class="stat-card shadow-sm">
+                    <div class="icon-box bg-done"><i class="bi bi-check-all"></i></div>
+                    <div class="count-number"><?php echo $count_finished; ?></div>
+                    <div class="stat-label">Selesai</div>
                 </div>
+            </div>
+            <!-- 5. DITOLAK -->
+            <div class="col-6">
+                <div class="stat-card shadow-sm">
+                    <div class="icon-box bg-reject"><i class="bi bi-x-circle"></i></div>
+                    <div class="count-number"><?php echo $count_rejected; ?></div>
+                    <div class="stat-label">Ditolak</div>
+                </div>
+            </div>
+            <!-- 6. TOTAL ARMADA -->
+            <div class="col-6">
+                <div class="stat-card shadow-sm" onclick="location.href='kendaraan.php'">
+                    <div class="icon-box bg-fleet"><i class="bi bi-car-front"></i></div>
+                    <div class="count-number"><?php echo $count_mobil; ?></div>
+                    <div class="stat-label">Armada</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kartu Identitas Admin -->
+        <div class="card stat-card mx-2 mt-4 text-center">
+            <h6 class="fw-bold mb-1"><?php echo $sett['nama_sistem']; ?></h6>
+            <p class="text-muted px-3 mb-0" style="font-size: 11px;"><?php echo $sett['deskripsi']; ?></p>
+            <div class="mt-3 pt-3 border-top text-muted" style="font-size: 10px;">
+                &copy; <?php echo $sett['tahun_sistem']; ?> <?php echo $sett['copyright']; ?>
             </div>
         </div>
     </div>
 
+    <!-- Panggil Navbar Admin Kendaraan -->
     <?php include 'navbar.php'; ?>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

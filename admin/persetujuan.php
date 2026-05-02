@@ -8,6 +8,16 @@ if ($_SESSION['role'] != "admin") {
     exit();
 }
 
+// --- LOGIKA PAGINASI ---
+$limit = 10; // Batasi 10 list per halaman
+$page  = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+$offset = ($page > 1) ? ($page * $limit) - $limit : 0;
+
+// Hitung total data untuk menentukan jumlah halaman
+$total_res = mysqli_query($koneksi, "SELECT COUNT(*) as total FROM reservasi");
+$total_data = mysqli_fetch_assoc($total_res)['total'];
+$total_pages = ceil($total_data / $limit);
+
 // Ambil jumlah pending untuk lencana di menu bawah
 $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservasi WHERE status='pending'"));
 ?>
@@ -20,8 +30,11 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Persetujuan - <?php echo $sett['nama_sistem']; ?></title>
     <link rel="icon" type="image/x-icon" href="../assets/img/<?php echo $sett['favicon']; ?>">
+    <!-- CDN Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Font: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
@@ -34,6 +47,10 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
         .btn-wa { color: #25D366; text-decoration: none; font-size: 14px; transition: 0.3s; }
         .btn-wa:hover { color: #128C7E; }
         .info-box { background: #f8f9fa; border-radius: 12px; padding: 12px; font-size: 12px; }
+        
+        /* Style Tambahan Paginasi */
+        .pagination .page-link { border-radius: 8px; margin: 0 3px; border: none; color: #1e293b; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .pagination .page-item.active .page-link { background-color: #0d6efd; color: #fff; }
     </style>
 </head>
 
@@ -50,19 +67,25 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
         <div class="px-1 mb-4 d-flex justify-content-between align-items-end">
             <div class="text-start">
                 <h6 class="fw-bold mb-0 text-dark">Daftar Pengajuan</h6>
-                <small class="text-muted small">Tentukan ruangan untuk unit</small>
+                <small class="text-muted small">Hal <?php echo $page; ?> dari <?php echo $total_pages; ?></small>
             </div>
             <span class="badge bg-white text-dark shadow-sm rounded-pill px-3"><?php echo $count_pending; ?> Pending</span>
         </div>
 
         <?php
+        // QUERY DENGAN LIMIT & OFFSET UNTUK PAGINASI
         $query = "SELECT r.*, u.nama_lengkap, u.unit, u.no_wa, rm.nama_ruangan 
                   FROM reservasi r 
                   JOIN users u ON r.user_id = u.id 
                   LEFT JOIN ruangan rm ON r.ruangan_id = rm.id 
-                  ORDER BY (status = 'pending') DESC, r.id DESC";
+                  ORDER BY (status = 'pending') DESC, r.id DESC 
+                  LIMIT $offset, $limit";
 
         $data = mysqli_query($koneksi, $query);
+
+        if (mysqli_num_rows($data) == 0) {
+            echo '<div class="text-center py-5 text-muted"><i class="bi bi-inbox fs-1 d-block mb-2"></i>Belum ada data.</div>';
+        }
 
         while ($d = mysqli_fetch_array($data)) {
             $phone = preg_replace('/[^0-9]/', '', $d['no_wa'] ?? '');
@@ -105,7 +128,6 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                                     <?php if ($d['tipe_permintaan'] == 'meeting_room') echo "<br>(" . substr($d['jam_mulai'], 0, 5) . " - " . substr($d['jam_selesai'], 0, 5) . ")"; ?>
                                 </small>
                             </div>
-                            <!-- TAMBAHAN INFO JUMLAH ORANG -->
                             <div class="col-5 ps-3">
                                 <small class="text-muted d-block">Kapasitas Diminta:</small>
                                 <small class="fw-bold text-primary"><i class="bi bi-people-fill me-1"></i> <?php echo $d['jumlah_orang']; ?> Orang</small>
@@ -179,6 +201,25 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                 </div>
             </div>
 
+        <?php } ?>
+
+        <!-- NAVIGASI PAGINASI -->
+        <?php if ($total_pages > 1) { ?>
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item <?php if($page <= 1) echo 'disabled'; ?>">
+                    <a class="page-link shadow-sm" href="?p=<?php echo $page-1; ?>"><i class="bi bi-chevron-left"></i></a>
+                </li>
+                <?php for($i=1; $i<=$total_pages; $i++) { ?>
+                    <li class="page-item <?php if($page == $i) echo 'active'; ?>">
+                        <a class="page-link shadow-sm" href="?p=<?php echo $i; ?>"><?php echo $i; ?></a>
+                    </li>
+                <?php } ?>
+                <li class="page-item <?php if($page >= $total_pages) echo 'disabled'; ?>">
+                    <a class="page-link shadow-sm" href="?p=<?php echo $page+1; ?>"><i class="bi bi-chevron-right"></i></a>
+                </li>
+            </ul>
+        </nav>
         <?php } ?>
 
         <div class="text-center mt-4">
