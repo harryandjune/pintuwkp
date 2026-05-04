@@ -1,0 +1,7 @@
+[02-May-2026 03:27:53 UTC] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\laragon\www\pintuwkp\admin\users.php on line 139
+[02-May-2026 03:46:07 UTC] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\laragon\www\pintuwkp\user\profil.php on line 167
+[02-May-2026 03:51:08 UTC] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\laragon\www\pintuwkp\user\profil.php on line 167
+[03-May-2026 03:34:34 UTC] PHP Warning:  Undefined variable $tgl_mulai in C:\laragon\www\pintuwkp\admin_kendaraan\persetujuan_aksi.php on line 64
+[03-May-2026 03:34:34 UTC] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in C:\laragon\www\pintuwkp\admin_kendaraan\persetujuan_aksi.php on line 64
+[03-May-2026 03:34:34 UTC] PHP Warning:  Undefined variable $tgl_selesai in C:\laragon\www\pintuwkp\admin_kendaraan\persetujuan_aksi.php on line 64
+[03-May-2026 03:34:34 UTC] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in C:\laragon\www\pintuwkp\admin_kendaraan\persetujuan_aksi.php on line 64

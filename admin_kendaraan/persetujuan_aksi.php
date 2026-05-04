@@ -15,7 +15,6 @@ if (isset($_GET['id']) && isset($_GET['status'])) {
 
     // --- LOGIKA UPDATE DATABASE ---
     if ($status == 'disetujui') {
-        // Validasi kendaraan_id jika disetujui
         if (!isset($_GET['kendaraan_id']) || empty($_GET['kendaraan_id'])) {
             echo "<script>alert('ID Kendaraan tidak terpilih!'); window.history.back();</script>";
             exit();
@@ -23,15 +22,13 @@ if (isset($_GET['id']) && isset($_GET['status'])) {
         $kendaraan_id = mysqli_real_escape_string($koneksi, $_GET['kendaraan_id']);
         $query = "UPDATE reservasi_kendaraan SET status = 'disetujui', kendaraan_id = '$kendaraan_id' WHERE id = '$id'";
     } else {
-        // Jika ditolak
         $query = "UPDATE reservasi_kendaraan SET status = 'ditolak' WHERE id = '$id'";
     }
 
     $eksekusi = mysqli_query($koneksi, $query);
 
     if ($eksekusi) {
-        // 3. Ambil data lengkap untuk notifikasi WA
-        // Gunakan LEFT JOIN ke kendaraan karena jika ditolak kendaraan_id masih NULL
+        // 3. Ambil data lengkap (Gunakan LEFT JOIN agar data tetap muncul meski kendaraan_id NULL saat ditolak)
         $q_info = mysqli_query($koneksi, "SELECT r.*, u.nama_lengkap, u.no_wa, k.merk, k.model, k.nomor_plat 
                                           FROM reservasi_kendaraan r 
                                           JOIN users u ON r.user_id = u.id 
@@ -46,7 +43,11 @@ if (isset($_GET['id']) && isset($_GET['status'])) {
             elseif (substr($phone, 0, 1) === '8') { $phone = '62' . $phone; }
         }
 
-        // 5. Susun Pesan WA Dinamis
+        // 5. Format Waktu (Tanggal dan Jam)
+        $waktu_mulai   = date('d/m/Y (H:i)', strtotime($d['tgl_mulai']));
+        $waktu_selesai = date('d/m/Y (H:i)', strtotime($d['tgl_selesai']));
+
+        // 6. Susun Pesan WA Dinamis
         $nama_sistem = $sett['nama_sistem'] ?? 'PINTU WKP';
         $pesan = "Assalamualaikum, Ustadz *" . $d['nama_lengkap'] . "*,\n\n";
 
@@ -61,7 +62,10 @@ if (isset($_GET['id']) && isset($_GET['status'])) {
             $pesan .= "• Jenis: " . $d['jenis_permintaan'] . "\n";
         }
 
-        $pesan .= "• Waktu: " . date('d/m/Y H:i', strtotime($d['tgl_mulai'])) . "\n";
+        // Informasi Waktu, Tujuan, dan Keperluan (Muncul di Setuju maupun Tolak)
+        $pesan .= "*Detail Jadwal:* \n";
+        $pesan .= "• Mulai: " . $waktu_mulai . " WITA\n";
+        $pesan .= "• Selesai: " . $waktu_selesai . " WITA\n";
         $pesan .= "• Tujuan: " . $d['tujuan'] . "\n";
         $pesan .= "• Keperluan: " . $d['keperluan'] . "\n\n";
         
@@ -73,7 +77,7 @@ if (isset($_GET['id']) && isset($_GET['status'])) {
 
         $url_wa = "https://wa.me/" . $phone . "?text=" . urlencode($pesan);
 
-        // 6. TAMPILKAN HALAMAN SUKSES
+        // 7. TAMPILKAN HALAMAN SUKSES
         tampilkan_sukses($status, $url_wa);
 
     } else {
@@ -83,7 +87,7 @@ if (isset($_GET['id']) && isset($_GET['status'])) {
     echo "ID atau Status tidak valid.";
 }
 
-// Fungsi tampilan UI sukses agar tidak blank
+// Fungsi tampilan UI sukses
 function tampilkan_sukses($status, $url_wa)
 {
     $color = ($status == 'disetujui') ? 'success' : 'danger';
@@ -100,7 +104,7 @@ function tampilkan_sukses($status, $url_wa)
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
         <style>
             body { font-family: 'Poppins', sans-serif; background: #0f172a; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-            .status-card { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); text-align: center; max-width: 400px; width: 90%; }
+            .status-card { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); text-align: center; max-width: 450px; width: 90%; }
         </style>
     </head>
     <body>
@@ -109,9 +113,9 @@ function tampilkan_sukses($status, $url_wa)
                 <i class="bi <?php echo $icon; ?>" style="font-size: 60px;"></i>
             </div>
             <h4 class="fw-bold"><?php echo $title; ?></h4>
-            <p class="text-muted small">Status telah diperbarui. Detail tujuan dan keperluan sudah dimasukkan ke dalam pesan WhatsApp.</p>
+            <p class="text-muted small">Status telah diperbarui. Pesan WhatsApp sudah menyertakan detail waktu mulai hingga selesai secara lengkap.</p>
             <a href="<?php echo $url_wa; ?>" target="_blank" class="btn btn-<?php echo $color; ?> w-100 py-3 mb-2 fw-bold" style="border-radius: 15px;">
-                <i class="bi bi-whatsapp me-2"></i> Kabari User via WA
+                <i class="bi bi-whatsapp me-2"></i> Kirim Kabar Ke User
             </a>
             <a href="persetujuan.php" class="btn btn-link text-muted text-decoration-none small">Kembali ke Daftar</a>
         </div>

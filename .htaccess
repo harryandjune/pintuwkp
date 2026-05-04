@@ -1,0 +1,24 @@
+RewriteEngine On
+
+# 1. Mencegah akses ke folder tanpa file index
+Options -Indexes
+
+# 2. INTERNAL REWRITE: Mengizinkan akses URL tanpa .php
+# Jika user mengetik /login, server diam-diam menjalankan login.php
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^([^\.]+)$ $1.php [NC,L]
+
+# 3. EXTERNAL REDIRECT: Paksa pindah .php ke URL bersih
+# HANYA dilakukan jika metodenya BUKAN POST (agar data form tidak hilang)
+# HANYA dilakukan jika file .php tersebut benar-benar ada
+RewriteCond %{REQUEST_METHOD} !POST
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /([^\ ]+)\.php
+RewriteRule ^(.*)\.php$ /$1 [L,R=301]
+
+# 4. ERROR HANDLING & PROTECTION
+ErrorDocument 404 /404.php
+<Files "error_log.txt">
+    Order Allow,Deny
+    Deny from all
+</Files>
