@@ -8,17 +8,15 @@ if ($_SESSION['role'] != "admin") {
     exit();
 }
 
-// --- LOGIKA PAGINASI ---
-$limit = 10; // Batasi 10 list per halaman
+// --- 1. LOGIKA PAGINASI ---
+$limit = 10; 
 $page  = isset($_GET['p']) ? (int)$_GET['p'] : 1;
 $offset = ($page > 1) ? ($page * $limit) - $limit : 0;
 
-// Hitung total data untuk menentukan jumlah halaman
 $total_res = mysqli_query($koneksi, "SELECT COUNT(*) as total FROM reservasi");
 $total_data = mysqli_fetch_assoc($total_res)['total'];
 $total_pages = ceil($total_data / $limit);
 
-// Ambil jumlah pending untuk lencana di menu bawah
 $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservasi WHERE status='pending'"));
 ?>
 
@@ -30,11 +28,8 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Persetujuan - <?php echo $sett['nama_sistem']; ?></title>
     <link rel="icon" type="image/x-icon" href="../assets/img/<?php echo $sett['favicon']; ?>">
-    <!-- CDN Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- Google Font: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
@@ -45,11 +40,8 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
         .status-badge { font-size: 10px; padding: 4px 10px; border-radius: 8px; font-weight: 600; }
         .btn-action { border-radius: 12px; font-size: 13px; font-weight: 600; padding: 10px; }
         .btn-wa { color: #25D366; text-decoration: none; font-size: 14px; transition: 0.3s; }
-        .btn-wa:hover { color: #128C7E; }
         .info-box { background: #f8f9fa; border-radius: 12px; padding: 12px; font-size: 12px; }
-        
-        /* Style Tambahan Paginasi */
-        .pagination .page-link { border-radius: 8px; margin: 0 3px; border: none; color: #1e293b; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .pagination .page-link { border-radius: 8px; margin: 0 3px; border: none; color: #1e293b; font-size: 13px; }
         .pagination .page-item.active .page-link { background-color: #0d6efd; color: #fff; }
     </style>
 </head>
@@ -64,8 +56,8 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
     </div>
 
     <div class="container mt-5">
-        <div class="px-1 mb-4 d-flex justify-content-between align-items-end">
-            <div class="text-start">
+        <div class="px-1 mb-4 d-flex justify-content-between align-items-end text-start">
+            <div>
                 <h6 class="fw-bold mb-0 text-dark">Daftar Pengajuan</h6>
                 <small class="text-muted small">Hal <?php echo $page; ?> dari <?php echo $total_pages; ?></small>
             </div>
@@ -73,7 +65,6 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
         </div>
 
         <?php
-        // QUERY DENGAN LIMIT & OFFSET UNTUK PAGINASI
         $query = "SELECT r.*, u.nama_lengkap, u.unit, u.no_wa, rm.nama_ruangan 
                   FROM reservasi r 
                   JOIN users u ON r.user_id = u.id 
@@ -83,16 +74,11 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
 
         $data = mysqli_query($koneksi, $query);
 
-        if (mysqli_num_rows($data) == 0) {
-            echo '<div class="text-center py-5 text-muted"><i class="bi bi-inbox fs-1 d-block mb-2"></i>Belum ada data.</div>';
-        }
-
         while ($d = mysqli_fetch_array($data)) {
             $phone = preg_replace('/[^0-9]/', '', $d['no_wa'] ?? '');
-            if (!empty($phone)) {
-                if (substr($phone, 0, 1) === '0') { $phone = '62' . substr($phone, 1); }
-                elseif (substr($phone, 0, 1) === '8') { $phone = '62' . $phone; }
-            }
+            if (substr($phone, 0, 1) === '0') $phone = '62' . substr($phone, 1);
+            elseif (substr($phone, 0, 1) === '8') $phone = '62' . $phone;
+            
             $message = urlencode("Assalamualaikum, Akh " . $d['nama_lengkap'] . ", saya Admin " . $sett['nama_sistem'] . " ingin konfirmasi terkait pengajuan " . $d['tipe_permintaan']);
         ?>
 
@@ -115,6 +101,8 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                         <?php
                         if ($d['status'] == 'pending') echo '<span class="status-badge bg-warning text-dark">Pending</span>';
                         elseif ($d['status'] == 'disetujui') echo '<span class="status-badge bg-success text-white">Disetujui</span>';
+                        elseif ($d['status'] == 'selesai') echo '<span class="status-badge bg-primary text-white">Selesai</span>';
+                        elseif ($d['status'] == 'dibatalkan') echo '<span class="status-badge bg-dark text-white">Batal</span>';
                         else echo '<span class="status-badge bg-danger text-white">Ditolak</span>';
                         ?>
                     </div>
@@ -130,7 +118,7 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                             </div>
                             <div class="col-5 ps-3">
                                 <small class="text-muted d-block">Kapasitas Diminta:</small>
-                                <small class="fw-bold text-primary"><i class="bi bi-people-fill me-1"></i> <?php echo $d['jumlah_orang']; ?> Orang</small>
+                                <small class="fw-bold text-primary"><i class="bi bi-people-fill me-1"></i> <?php echo $d['jumlah_orang']; ?> Org</small>
                             </div>
                         </div>
                         <div class="mt-2 border-top pt-2">
@@ -147,11 +135,11 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                                 </button>
                             </div>
                             <div class="col-12 text-center">
-                                <a href="persetujuan_aksi.php?id=<?php echo $d['id']; ?>&status=ditolak" class="btn btn-link text-danger text-decoration-none small" onclick="return confirm('Tolak?')">Tolak Pengajuan</a>
+                                <a href="persetujuan_aksi.php?id=<?php echo $d['id']; ?>&status=ditolak" class="btn btn-link text-danger text-decoration-none small" onclick="return confirm('Tolak pengajuan ini?')">Tolak Pengajuan</a>
                             </div>
                         </div>
 
-                        <!-- MODAL PILIH RUANGAN -->
+                        <!-- MODAL SETUJUI -->
                         <div class="modal fade" id="modalSetujui<?php echo $d['id']; ?>" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <form action="persetujuan_aksi.php" method="GET" class="modal-content" style="border-radius: 25px;">
@@ -162,37 +150,53 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                                     <div class="modal-body pt-3 text-start">
                                         <input type="hidden" name="id" value="<?php echo $d['id']; ?>">
                                         <input type="hidden" name="status" value="disetujui">
-                                        
-                                        <p class="small text-muted mb-3">Unit: <b class="text-primary"><?php echo str_replace('_', ' ', strtoupper($d['tipe_permintaan'])); ?></b> (Peserta: <?php echo $d['jumlah_orang']; ?> Org)</p>
-                                        
-                                        <label class="small fw-bold mb-1">Daftar Ruangan:</label>
+                                        <label class="small fw-bold mb-1">Daftar Ruangan Tersedia:</label>
                                         <select name="ruangan_id" class="form-select mb-3" style="border-radius: 12px;" required>
                                             <option value="">-- Pilih Ruangan --</option>
                                             <?php 
                                             $tipe_req = $d['tipe_permintaan'];
                                             $start_req = $d['tgl_pinjam'];
                                             $end_req   = $d['tgl_selesai'];
-
-                                            $q_busy = mysqli_query($koneksi, "SELECT ruangan_id FROM reservasi 
-                                                                              WHERE status = 'disetujui' 
-                                                                              AND ruangan_id IS NOT NULL 
-                                                                              AND (tgl_pinjam <= '$end_req' AND tgl_selesai >= '$start_req')");
+                                            $q_busy = mysqli_query($koneksi, "SELECT ruangan_id FROM reservasi WHERE status = 'disetujui' AND ruangan_id IS NOT NULL AND (tgl_pinjam <= '$end_req' AND tgl_selesai >= '$start_req')");
                                             $busy_ids = [];
-                                            while($busy = mysqli_fetch_assoc($q_busy)){
-                                                $busy_ids[] = $busy['ruangan_id'];
-                                            }
-
+                                            while($busy = mysqli_fetch_assoc($q_busy)){ $busy_ids[] = $busy['ruangan_id']; }
                                             $q_room = mysqli_query($koneksi, "SELECT * FROM ruangan WHERE tipe='$tipe_req' ORDER BY nama_ruangan ASC");
                                             while($rm = mysqli_fetch_array($q_room)){
                                                 $is_busy = in_array($rm['id'], $busy_ids);
                                                 $label_status = $is_busy ? " [⚠️ TERPAKAI]" : " [READY]";
                                                 $color_style = $is_busy ? "style='color: red; font-weight:bold;'" : "";
-                                                
                                                 echo "<option value='".$rm['id']."' $color_style>".$rm['nama_ruangan']." (Kaps: ".$rm['kapasitas'].") $label_status</option>";
                                             }
                                             ?>
                                         </select>
                                         <button type="submit" class="btn btn-primary w-100 py-2 fw-bold text-white shadow" style="border-radius: 12px;">Konfirmasi & Setujui</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                    <?php } elseif ($d['status'] == 'disetujui') { ?>
+                        <!-- TOMBOL CANCEL UNTUK YANG SUDAH DISETUJUI -->
+                        <div class="mt-2">
+                            <button class="btn btn-outline-danger btn-action w-100" data-bs-toggle="modal" data-bs-target="#modalCancel<?php echo $d['id']; ?>">
+                                <i class="bi bi-x-circle me-1"></i> Batalkan Izin Ruangan
+                            </button>
+                        </div>
+
+                        <!-- MODAL CANCEL -->
+                        <div class="modal fade" id="modalCancel<?php echo $d['id']; ?>" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <form action="persetujuan_aksi.php" method="GET" class="modal-content" style="border-radius: 25px;">
+                                    <div class="modal-header border-0 pb-0">
+                                        <h6 class="fw-bold mb-0 text-danger">Batalkan Peminjaman</h6>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body pt-3 text-start">
+                                        <input type="hidden" name="id" value="<?php echo $d['id']; ?>">
+                                        <input type="hidden" name="status" value="dibatalkan">
+                                        <label class="small fw-bold mb-1">Alasan Pembatalan:</label>
+                                        <textarea name="alasan" class="form-control mb-3" rows="3" placeholder="Sebutkan alasan pembatalan..." style="border-radius: 12px;" required></textarea>
+                                        <button type="submit" class="btn btn-danger w-100 py-2 fw-bold text-white shadow" style="border-radius: 12px;">Konfirmasi Pembatalan</button>
                                     </div>
                                 </form>
                             </div>
@@ -203,34 +207,20 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
 
         <?php } ?>
 
-        <!-- NAVIGASI PAGINASI -->
+        <!-- PAGINASI -->
         <?php if ($total_pages > 1) { ?>
-        <nav class="mt-4">
-            <ul class="pagination justify-content-center">
-                <li class="page-item <?php if($page <= 1) echo 'disabled'; ?>">
-                    <a class="page-link shadow-sm" href="?p=<?php echo $page-1; ?>"><i class="bi bi-chevron-left"></i></a>
-                </li>
-                <?php for($i=1; $i<=$total_pages; $i++) { ?>
-                    <li class="page-item <?php if($page == $i) echo 'active'; ?>">
-                        <a class="page-link shadow-sm" href="?p=<?php echo $i; ?>"><?php echo $i; ?></a>
-                    </li>
-                <?php } ?>
-                <li class="page-item <?php if($page >= $total_pages) echo 'disabled'; ?>">
-                    <a class="page-link shadow-sm" href="?p=<?php echo $page+1; ?>"><i class="bi bi-chevron-right"></i></a>
-                </li>
-            </ul>
-        </nav>
+        <nav class="mt-4"><ul class="pagination justify-content-center">
+            <li class="page-item <?php if($page <= 1) echo 'disabled'; ?>"><a class="page-link shadow-sm" href="?p=<?php echo $page-1; ?>"><i class="bi bi-chevron-left"></i></a></li>
+            <?php for($i=1; $i<=$total_pages; $i++) { ?>
+                <li class="page-item <?php if($page == $i) echo 'active'; ?>"><a class="page-link shadow-sm" href="?p=<?php echo $i; ?>"><?php echo $i; ?></a></li>
+            <?php } ?>
+            <li class="page-item <?php if($page >= $total_pages) echo 'disabled'; ?>"><a class="page-link shadow-sm" href="?p=<?php echo $page+1; ?>"><i class="bi bi-chevron-right"></i></a></li>
+        </ul></nav>
         <?php } ?>
-
-        <div class="text-center mt-4">
-            <p class="text-muted" style="font-size: 10px;">&copy; <?php echo $sett['tahun_sistem']; ?> <?php echo $sett['copyright']; ?></p>
-        </div>
     </div>
 
     <?php include 'navbar.php'; ?>
-
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
