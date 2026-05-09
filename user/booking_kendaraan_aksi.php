@@ -18,11 +18,6 @@ $sopir      = $_POST['pakai_sopir'];
 $nama_sopir_alt = mysqli_real_escape_string($koneksi, $_POST['nama_sopir_alt'] ?? '');
 $jenis_permintaan = mysqli_real_escape_string($koneksi, $_POST['jenis_permintaan']);
 
-// --- CATATAN LOGIKA BENTROK ---
-// Karena user belum memilih mobil spesifik (ID mobil masih NULL), 
-// kita tidak bisa mengecek bentrok fisik kendaraan di sini.
-// Pengecekan bentrok akan dilakukan oleh ADMIN saat mengalokasikan unit.
-
 // 2. Simpan ke Database (Kolom kendaraan_id diisi NULL karena belum ditentukan admin)
 $sql = "INSERT INTO reservasi_kendaraan (user_id, institusi_peminjam, jenis_permintaan, kendaraan_id, tgl_mulai, tgl_selesai, tujuan, keperluan, pakai_sopir, nama_sopir_alt, status) 
         VALUES ('$user_id', '$institusi', '$jenis_permintaan', NULL, '$tgl_mulai', '$tgl_selesai', '$tujuan', '$keperluan', '$sopir', '$nama_sopir_alt', 'pending')";
@@ -38,23 +33,19 @@ if (mysqli_query($koneksi, $sql)) {
     $wa_admin = preg_replace('/[^0-9]/', '', $adm['no_wa'] ?? '');
     if (substr($wa_admin, 0, 1) === '0') $wa_admin = '62' . substr($wa_admin, 1);
 
-    // Keterangan Sopir
-    if ($sopir == 'ya') {
-        $ket_sopir = "YA (Sopir Yayasan)";
-    } else {
-        $ket_sopir = "TIDAK (Bawa Sendiri: *$nama_sopir_alt*)";
-    }
+    // Keterangan Sopir (Sekarang dipisah agar lebih jelas)
+    $sopir_yayasan = ($sopir == 'ya') ? "YA" : "TIDAK (Bawa Sendiri)";
 
-    // Susun Pesan WA (Menggunakan Jenis Permintaan, bukan merk mobil)
-    $pesan = "*PEMINJAMAN KENDARAAN*\n";
+    // Susun Pesan WA
+    $pesan = "*PEMINJAMAN KENDARAAN BARU*\n";
     $pesan .= "------------------\n";
     $pesan .= "Pemohon: $nama_user\n";
     $pesan .= "Unit: $institusi\n";
-    $pesan .= "Jenis Dibutuhkan: *$jenis_permintaan*\n";
+    $pesan .= "Jenis: *$jenis_permintaan*\n";
     $pesan .= "Tujuan: $tujuan\n";
-    $pesan .= "Keperluan: $keperluan\n";
     $pesan .= "Waktu: ".date('d/m/Y H:i', strtotime($tgl_mulai))." s.d ".date('d/m/Y H:i', strtotime($tgl_selesai))."\n";
-    $pesan .= "Sopir: $ket_sopir\n";
+    $pesan .= "Sopir Yayasan: $sopir_yayasan\n";
+    $pesan .= "Sopir Alternatif: *$nama_sopir_alt*\n"; // SELALU DISERTAKAN
     $pesan .= "------------------\n";
     $pesan .= "Mohon admin segera menentukan unit armada di dashboard.";
 
@@ -62,7 +53,7 @@ if (mysqli_query($koneksi, $sql)) {
 ?>
     <!-- Tampilan Sukses -->
     <script>
-        alert('Pengajuan berhasil dikirim! Silakan teruskan notifikasi ke WhatsApp Admin.');
+        alert('Pengajuan berhasil dikirim! Meneruskan notifikasi ke WhatsApp Admin.');
         window.location.href = '<?php echo $url_wa; ?>';
     </script>
 <?php

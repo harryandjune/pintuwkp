@@ -5,3 +5,4 @@
 [03-May-2026 03:34:34 UTC] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in C:\laragon\www\pintuwkp\admin_kendaraan\persetujuan_aksi.php on line 64
 [03-May-2026 03:34:34 UTC] PHP Warning:  Undefined variable $tgl_selesai in C:\laragon\www\pintuwkp\admin_kendaraan\persetujuan_aksi.php on line 64
 [03-May-2026 03:34:34 UTC] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in C:\laragon\www\pintuwkp\admin_kendaraan\persetujuan_aksi.php on line 64
+[09-May-2026 09:26:39 Asia/Makassar] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\laragon\www\pintuwkp\user\profil.php on line 167
