@@ -2,13 +2,17 @@
 session_start();
 include '../config/koneksi.php';
 
-if ($_SESSION['role'] != "admin_kendaraan") { header("location:../login.php"); exit(); }
+if ($_SESSION['role'] != "admin_kendaraan") {
+    header("location:../login.php");
+    exit();
+}
 
 $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservasi_kendaraan WHERE status='pending'"));
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,29 +20,63 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    
+
     <!-- FullCalendar CDN -->
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
-    
+
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; padding-bottom: 100px; }
-        .header-section { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; padding: 30px 20px 50px; border-radius: 0 0 30px 30px; margin-bottom: -30px; }
-        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7f6;
+            padding-bottom: 100px;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+            padding: 30px 20px 50px;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: -30px;
+        }
+
         #calendar-container {
             background: white;
             padding: 15px;
             border-radius: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
         }
 
         /* Customizing FullCalendar to Dark Theme */
-        .fc { --fc-border-color: #eee; }
-        .fc .fc-toolbar-title { font-size: 1rem; font-weight: bold; }
-        .fc .fc-button-primary { background-color: #0f172a; border-color: #0f172a; font-size: 0.8rem; border-radius: 8px; }
-        .fc .fc-button-primary:hover { background-color: #1e293b; }
-        .fc-event { cursor: pointer; border-radius: 6px; padding: 2px 4px; font-size: 0.7rem; border: none !important; }
+        .fc {
+            --fc-border-color: #eee;
+        }
+
+        .fc .fc-toolbar-title {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .fc .fc-button-primary {
+            background-color: #0f172a;
+            border-color: #0f172a;
+            font-size: 0.8rem;
+            border-radius: 8px;
+        }
+
+        .fc .fc-button-primary:hover {
+            background-color: #1e293b;
+        }
+
+        .fc-event {
+            cursor: pointer;
+            border-radius: 6px;
+            padding: 2px 4px;
+            font-size: 0.7rem;
+            border: none !important;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="header-section shadow d-flex align-items-center">
@@ -79,15 +117,16 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                     <div class="px-2">
                         <p class="mb-1 small"><strong>Tujuan:</strong></p>
                         <p id="m-tujuan" class="small mb-3"></p>
-                        
+
                         <div class="row text-center">
                             <div class="col-6 border-end">
                                 <small class="text-muted d-block">Sopir</small>
                                 <span class="badge bg-warning text-dark" id="m-sopir"></span>
                             </div>
+                            <!-- Bagian Modal (Cari baris status) -->
                             <div class="col-6">
                                 <small class="text-muted d-block">Status</small>
-                                <span class="badge bg-success">DISETUJUI</span>
+                                <span class="badge" id="m-status"></span> <!-- ID m-status ditambahkan di sini -->
                             </div>
                         </div>
                     </div>
@@ -112,14 +151,23 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                 events: 'get_events_kendaraan.php',
                 eventClick: function(info) {
                     var props = info.event.extendedProps;
-                    
+
                     document.getElementById('m-mobil').innerText = info.event.title;
                     document.getElementById('m-plat').innerText = "Plat Nomor: " + props.plat;
                     document.getElementById('m-unit').innerText = props.peminjam;
                     document.getElementById('m-pic').innerText = props.pic;
                     document.getElementById('m-tujuan').innerText = props.tujuan;
                     document.getElementById('m-sopir').innerText = props.sopir;
-                    
+
+                    // LOGIKA STATUS DINAMIS DI MODAL
+                    var statusEl = document.getElementById('m-status');
+                    statusEl.innerText = props.status;
+                    if (props.status === 'SELESAI') {
+                        statusEl.className = 'badge bg-secondary';
+                    } else {
+                        statusEl.className = 'badge bg-success';
+                    }
+
                     var myModal = new bootstrap.Modal(document.getElementById('carModal'));
                     myModal.show();
                 },
@@ -132,4 +180,5 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
