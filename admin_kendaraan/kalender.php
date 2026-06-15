@@ -152,14 +152,18 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                 eventClick: function(info) {
                     var props = info.event.extendedProps;
 
-                    document.getElementById('m-mobil').innerText = info.event.title;
+                    // MENGGABUNGKAN MERK DAN MODEL (Contoh: Daihatsu Xenia)
+                    var namaLengkapMobil = props.merk + " " + props.model;
+                    document.getElementById('m-mobil').innerText = namaLengkapMobil;
+
+                    // Detail lainnya
                     document.getElementById('m-plat').innerText = "Plat Nomor: " + props.plat;
                     document.getElementById('m-unit').innerText = props.peminjam;
                     document.getElementById('m-pic').innerText = props.pic;
                     document.getElementById('m-tujuan').innerText = props.tujuan;
                     document.getElementById('m-sopir').innerText = props.sopir;
 
-                    // LOGIKA STATUS DINAMIS DI MODAL
+                    // LOGIKA STATUS DINAMIS
                     var statusEl = document.getElementById('m-status');
                     statusEl.innerText = props.status;
                     if (props.status === 'SELESAI') {

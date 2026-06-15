@@ -8,7 +8,25 @@ if ($_SESSION['role'] != "admin") {
     exit();
 }
 
-// --- 1. LOGIKA PAGINASI ---
+// -----------------------------------------------------------------------
+// 1. LOGIKA AUTO-SELESAI GEDUNG (OTOMATIS)
+// -----------------------------------------------------------------------
+date_default_timezone_set('Asia/Makassar'); 
+$now_dt = date('Y-m-d H:i:s');
+$today  = date('Y-m-d');
+
+// Update status ke 'selesai' jika waktu penggunaan sudah lewat
+$sql_auto_done = "UPDATE reservasi SET status = 'selesai' 
+                  WHERE status = 'disetujui' 
+                  AND (
+                    (tipe_permintaan = 'meeting_room' AND CONCAT(tgl_selesai, ' ', jam_selesai) < '$now_dt') 
+                    OR 
+                    (tipe_permintaan = 'guest_house' AND tgl_selesai < '$today')
+                  )";
+mysqli_query($koneksi, $sql_auto_done);
+// -----------------------------------------------------------------------
+
+// --- 2. LOGIKA PAGINASI ---
 $limit = 10; 
 $page  = isset($_GET['p']) ? (int)$_GET['p'] : 1;
 $offset = ($page > 1) ? ($page * $limit) - $limit : 0;
@@ -40,6 +58,7 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
         .status-badge { font-size: 10px; padding: 4px 10px; border-radius: 8px; font-weight: 600; }
         .btn-action { border-radius: 12px; font-size: 13px; font-weight: 600; padding: 10px; }
         .btn-wa { color: #25D366; text-decoration: none; font-size: 14px; transition: 0.3s; }
+        .btn-wa:hover { color: #128C7E; }
         .info-box { background: #f8f9fa; border-radius: 12px; padding: 12px; font-size: 12px; }
         .pagination .page-link { border-radius: 8px; margin: 0 3px; border: none; color: #1e293b; font-size: 13px; }
         .pagination .page-item.active .page-link { background-color: #0d6efd; color: #fff; }
@@ -75,6 +94,11 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
         $data = mysqli_query($koneksi, $query);
 
         while ($d = mysqli_fetch_array($data)) {
+            // Tentukan batas waktu selesai untuk tombol cancel
+            $waktu_selesai_booking = ($d['tipe_permintaan'] == 'meeting_room') 
+                                     ? $d['tgl_selesai'] . ' ' . $d['jam_selesai'] 
+                                     : $d['tgl_selesai'] . ' 23:59:59';
+
             $phone = preg_replace('/[^0-9]/', '', $d['no_wa'] ?? '');
             if (substr($phone, 0, 1) === '0') $phone = '62' . substr($phone, 1);
             elseif (substr($phone, 0, 1) === '8') $phone = '62' . $phone;
@@ -121,9 +145,9 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                                 <small class="fw-bold text-primary"><i class="bi bi-people-fill me-1"></i> <?php echo $d['jumlah_orang']; ?> Org</small>
                             </div>
                         </div>
-                        <div class="mt-2 border-top pt-2">
-                            <small class="text-muted d-block text-uppercase" style="font-size: 9px; font-weight: 700;">Keperluan:</small>
-                            <span class="text-dark" style="line-height: 1.2;"><?php echo htmlspecialchars($d['keperluan']); ?></span>
+                        <div class="mt-1">
+                            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 8px;">Keperluan:</small>
+                            <span class="text-dark small"><?php echo htmlspecialchars($d['keperluan']); ?></span>
                         </div>
                     </div>
 
@@ -134,7 +158,7 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                                     <i class="bi bi-check-circle me-1"></i> Pilih Ruang & Setujui
                                 </button>
                             </div>
-                            <div class="col-12 text-center">
+                            <div class="col-12 text-center mt-2">
                                 <a href="persetujuan_aksi.php?id=<?php echo $d['id']; ?>&status=ditolak" class="btn btn-link text-danger text-decoration-none small" onclick="return confirm('Tolak pengajuan ini?')">Tolak Pengajuan</a>
                             </div>
                         </div>
@@ -175,8 +199,8 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                             </div>
                         </div>
 
-                    <?php } elseif ($d['status'] == 'disetujui') { ?>
-                        <!-- TOMBOL CANCEL UNTUK YANG SUDAH DISETUJUI -->
+                    <?php } elseif ($d['status'] == 'disetujui' && $now_dt < $waktu_selesai_booking) { ?>
+                        <!-- TOMBOL CANCEL (Hanya muncul jika belum berakhir) -->
                         <div class="mt-2">
                             <button class="btn btn-outline-danger btn-action w-100" data-bs-toggle="modal" data-bs-target="#modalCancel<?php echo $d['id']; ?>">
                                 <i class="bi bi-x-circle me-1"></i> Batalkan Izin Ruangan
@@ -204,7 +228,6 @@ $count_pending = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM reservas
                     <?php } ?>
                 </div>
             </div>
-
         <?php } ?>
 
         <!-- PAGINASI -->

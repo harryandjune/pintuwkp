@@ -6,3 +6,21 @@
 [03-May-2026 03:34:34 UTC] PHP Warning:  Undefined variable $tgl_selesai in C:\laragon\www\pintuwkp\admin_kendaraan\persetujuan_aksi.php on line 64
 [03-May-2026 03:34:34 UTC] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in C:\laragon\www\pintuwkp\admin_kendaraan\persetujuan_aksi.php on line 64
 [09-May-2026 09:26:39 Asia/Makassar] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\laragon\www\pintuwkp\user\profil.php on line 167
+[18-May-2026 10:51:05 Asia/Makassar] PHP Fatal error:  Uncaught mysqli_sql_exception: Plugin 'mysql_native_password' is not loaded in C:\laragon\www\pintuwkp\config\koneksi.php:21
+Stack trace:
+#0 C:\laragon\www\pintuwkp\config\koneksi.php(21): mysqli_connect('localhost', 'ummulqur_pintuw...', Object(SensitiveParameterValue), 'ummulqur_pintuw...')
+#1 C:\laragon\www\pintuwkp\login.php(3): include('C:\\laragon\\www\\...')
+#2 {main}
+  thrown in C:\laragon\www\pintuwkp\config\koneksi.php on line 21
+[18-May-2026 10:51:10 Asia/Makassar] PHP Fatal error:  Uncaught mysqli_sql_exception: Plugin 'mysql_native_password' is not loaded in C:\laragon\www\pintuwkp\config\koneksi.php:21
+Stack trace:
+#0 C:\laragon\www\pintuwkp\config\koneksi.php(21): mysqli_connect('localhost', 'ummulqur_pintuw...', Object(SensitiveParameterValue), 'ummulqur_pintuw...')
+#1 C:\laragon\www\pintuwkp\login.php(3): include('C:\\laragon\\www\\...')
+#2 {main}
+  thrown in C:\laragon\www\pintuwkp\config\koneksi.php on line 21
+[18-May-2026 10:51:13 Asia/Makassar] PHP Fatal error:  Uncaught mysqli_sql_exception: Plugin 'mysql_native_password' is not loaded in C:\laragon\www\pintuwkp\config\koneksi.php:21
+Stack trace:
+#0 C:\laragon\www\pintuwkp\config\koneksi.php(21): mysqli_connect('localhost', 'ummulqur_pintuw...', Object(SensitiveParameterValue), 'ummulqur_pintuw...')
+#1 C:\laragon\www\pintuwkp\login.php(3): include('C:\\laragon\\www\\...')
+#2 {main}
+  thrown in C:\laragon\www\pintuwkp\config\koneksi.php on line 21
