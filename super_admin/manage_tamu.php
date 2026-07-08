@@ -17,8 +17,34 @@ if (isset($_GET['delete_id'])) {
     }
 }
 
+// --- LOGIKA UPDATE TAMU ---
+if (isset($_POST['update_tamu'])) {
+    $id_u     = mysqli_real_escape_string($koneksi, $_POST['id']);
+    $nama_u   = mysqli_real_escape_string($koneksi, $_POST['nama']);
+    $inst_u   = mysqli_real_escape_string($koneksi, $_POST['instansi']);
+    $tujuan_u = mysqli_real_escape_string($koneksi, $_POST['maksud_tujuan']);
+    $alamat_u = mysqli_real_escape_string($koneksi, $_POST['alamat']);
+    $wa_u     = mysqli_real_escape_string($koneksi, $_POST['no_wa']);
+    $tgl_u    = mysqli_real_escape_string($koneksi, $_POST['tanggal']);
+
+    $query_upd = "UPDATE buku_tamu SET 
+                    nama = '$nama_u', 
+                    instansi = '$inst_u', 
+                    maksud_tujuan = '$tujuan_u', 
+                    alamat = '$alamat_u', 
+                    no_wa = '$wa_u', 
+                    tanggal = '$tgl_u' 
+                  WHERE id = '$id_u'";
+                  
+    if (mysqli_query($koneksi, $query_upd)) {
+        $msg = "<div class='alert alert-success border-0 small shadow-sm'>Data tamu berhasil diperbarui.</div>";
+    } else {
+        $msg = "<div class='alert alert-danger border-0 small shadow-sm'>Gagal memperbarui data.</div>";
+    }
+}
+
 // Konfigurasi Pencarian & Paginasi
-$limit = 15;
+$limit = 10; // Dibatasi 10 agar seragam dan rapi
 $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
 $offset = ($page > 1) ? ($page * $limit) - $limit : 0;
 
@@ -51,11 +77,12 @@ $query_tamu = mysqli_query($koneksi, "SELECT * FROM buku_tamu $where ORDER BY id
         
         .search-card { border: none; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); background: #fff; }
         .form-control { border-radius: 12px; font-size: 14px; background: #f8f9fa; border: 1px solid #eee; }
+        .form-control:focus { background-color: #fff; border-color: #4338ca; box-shadow: 0 0 0 4px rgba(67, 56, 202, 0.1); }
         
         .guest-card { border: none; border-radius: 20px; background: #fff; margin-bottom: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); }
         .avatar-box { width: 45px; height: 45px; background: #eef2ff; color: #4338ca; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         
-        .pagination .page-link { border-radius: 10px; margin: 0 3px; border: none; color: #4338ca; }
+        .pagination .page-link { border-radius: 8px; margin: 0 3px; border: none; color: #4338ca; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .pagination .page-item.active .page-link { background-color: #4338ca; color: #fff; }
     </style>
 </head>
@@ -76,15 +103,17 @@ $query_tamu = mysqli_query($koneksi, "SELECT * FROM buku_tamu $where ORDER BY id
             <form method="GET" action="">
                 <div class="input-group">
                     <span class="input-group-text bg-transparent border-0"><i class="bi bi-search text-muted"></i></span>
-                    <input type="text" name="q" class="form-control border-0 bg-transparent" placeholder="Cari nama atau instansi tamu..." value="<?php echo htmlspecialchars($search); ?>">
+                    <input type="text" name="q" class="form-control border-0 bg-transparent" placeholder="Cari nama atau instansi..." value="<?php echo htmlspecialchars($search); ?>">
                     <button type="submit" class="btn btn-indigo text-white d-none">Cari</button>
                 </div>
             </form>
         </div>
 
-        <div class="px-2 mb-3 d-flex justify-content-between">
-            <small class="text-muted">Total: <?php echo $total_data; ?> Kunjungan</small>
-            <?php if(!empty($search)) { ?><a href="manage_tamu.php" class="text-danger small text-decoration-none">Reset Filter</a><?php } ?>
+        <div class="px-2 mb-3 d-flex justify-content-between align-items-end">
+            <div>
+                <small class="text-muted d-block">Total: <?php echo $total_data; ?> Kunjungan</small>
+                <?php if(!empty($search)) { ?><a href="manage_tamu.php" class="text-danger small text-decoration-none">Reset Filter</a><?php } ?>
+            </div>
         </div>
 
         <!-- Loop Data Tamu -->
@@ -105,10 +134,14 @@ $query_tamu = mysqli_query($koneksi, "SELECT * FROM buku_tamu $where ORDER BY id
                                 <h6 class="fw-bold mb-0" style="font-size: 14px;"><?php echo htmlspecialchars($t['nama']); ?></h6>
                                 <small class="text-indigo fw-bold" style="font-size: 10px; color: #4338ca;"><?php echo htmlspecialchars($t['instansi']); ?></small>
                             </div>
-                            <div class="text-end">
-                                <small class="text-muted d-block" style="font-size: 9px;"><?php echo date('d/m/y', strtotime($t['tanggal'])); ?></small>
-                                <a href="manage_tamu.php?delete_id=<?php echo $t['id']; ?>" class="text-danger" onclick="return confirm('Hapus data kunjungan ini secara permanen?')">
-                                    <i class="bi bi-trash3"></i>
+                            <div class="text-end d-flex gap-2">
+                                <!-- Tombol Edit -->
+                                <button class="btn btn-outline-primary border-0 btn-sm" data-bs-toggle="modal" data-bs-target="#editModal<?php echo $t['id']; ?>">
+                                    <i class="bi bi-pencil-square fs-5"></i>
+                                </button>
+                                <!-- Tombol Hapus -->
+                                <a href="manage_tamu.php?delete_id=<?php echo $t['id']; ?>" class="btn btn-outline-danger border-0 btn-sm" onclick="return confirm('Hapus data kunjungan ini secara permanen?')">
+                                    <i class="bi bi-trash3 fs-5"></i>
                                 </a>
                             </div>
                         </div>
@@ -119,23 +152,82 @@ $query_tamu = mysqli_query($koneksi, "SELECT * FROM buku_tamu $where ORDER BY id
 
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted" style="font-size: 10px;"><i class="bi bi-geo-alt me-1"></i> <?php echo htmlspecialchars($t['alamat']); ?></small>
-                            <small class="text-muted" style="font-size: 10px;"><i class="bi bi-whatsapp me-1 text-success"></i> <?php echo $t['no_wa']; ?></small>
+                            <div class="text-end">
+                                <small class="text-muted d-block" style="font-size: 9px;"><?php echo date('d M Y', strtotime($t['tanggal'])); ?></small>
+                                <small class="text-muted d-block" style="font-size: 10px;"><i class="bi bi-whatsapp me-1 text-success"></i> <?php echo $t['no_wa']; ?></small>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- MODAL EDIT TAMU -->
+            <div class="modal fade" id="editModal<?php echo $t['id']; ?>" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <form method="POST" class="modal-content" style="border-radius: 25px;">
+                        <div class="modal-header border-0 pb-0">
+                            <h6 class="fw-bold mb-0">Edit Data Tamu</h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body pt-3 text-start">
+                            <input type="hidden" name="id" value="<?php echo $t['id']; ?>">
+                            
+                            <div class="mb-2">
+                                <label class="small fw-bold">Tanggal Kunjungan</label>
+                                <input type="date" name="tanggal" class="form-control" value="<?php echo $t['tanggal']; ?>" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="small fw-bold">Nama Lengkap</label>
+                                <input type="text" name="nama" class="form-control" value="<?php echo htmlspecialchars($t['nama']); ?>" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="small fw-bold">Instansi / Asal</label>
+                                <input type="text" name="instansi" class="form-control" value="<?php echo htmlspecialchars($t['instansi']); ?>" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="small fw-bold">Maksud & Tujuan</label>
+                                <textarea name="maksud_tujuan" class="form-control" rows="2" required><?php echo htmlspecialchars($t['maksud_tujuan']); ?></textarea>
+                            </div>
+                            <div class="mb-2">
+                                <label class="small fw-bold">Alamat</label>
+                                <input type="text" name="alamat" class="form-control" value="<?php echo htmlspecialchars($t['alamat']); ?>">
+                            </div>
+                            <div class="mb-4">
+                                <label class="small fw-bold">Nomor WhatsApp</label>
+                                <input type="number" name="no_wa" class="form-control" value="<?php echo htmlspecialchars($t['no_wa']); ?>" required>
+                            </div>
+
+                            <button type="submit" name="update_tamu" class="btn btn-primary w-100 py-2 fw-bold shadow" style="border-radius: 12px; background: #312e81; border:none;">
+                                Simpan Perubahan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- END MODAL -->
+
             <?php } ?>
         </div>
 
         <!-- Paginasi -->
         <?php if($total_pages > 1) { ?>
         <nav class="mt-4">
-            <ul class="pagination pagination-sm justify-content-center">
-                <?php for($i=1; $i<=$total_pages; $i++) { ?>
+            <ul class="pagination justify-content-center">
+                <li class="page-item <?php if($page <= 1) echo 'disabled'; ?>">
+                    <a class="page-link shadow-sm" href="?p=<?php echo $page-1; ?>&q=<?php echo $search; ?>"><i class="bi bi-chevron-left"></i></a>
+                </li>
+                <?php 
+                // Logika Paginasi 5 Tombol agar tidak terlalu panjang
+                $start = max(1, $page - 2);
+                $end = min($total_pages, $page + 2);
+                for($i = $start; $i <= $end; $i++) { ?>
                     <li class="page-item <?php if($page == $i) echo 'active'; ?>">
                         <a class="page-link shadow-sm" href="?p=<?php echo $i; ?>&q=<?php echo $search; ?>"><?php echo $i; ?></a>
                     </li>
                 <?php } ?>
+                <li class="page-item <?php if($page >= $total_pages) echo 'disabled'; ?>">
+                    <a class="page-link shadow-sm" href="?p=<?php echo $page+1; ?>&q=<?php echo $search; ?>"><i class="bi bi-chevron-right"></i></a>
+                </li>
             </ul>
         </nav>
         <?php } ?>

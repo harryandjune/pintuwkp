@@ -71,7 +71,7 @@ $q_sopir = mysqli_query($koneksi, "SELECT DISTINCT nama_sopir_alt FROM reservasi
 
                 <!-- AUTOCOMPLETE INSTANSI -->
                 <div class="mb-3 position-relative">
-                    <label class="form-label">Instansi / Nama Pengurus</label>
+                    <label class="form-label">Instansi</label>
                     <input type="text" name="institusi_peminjam" id="input_instansi" class="form-control" placeholder="Ketik nama..." autocomplete="off" required>
                     <div id="box_instansi" class="sug-box">
                         <div class="list-group list-group-flush">

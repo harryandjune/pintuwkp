@@ -73,9 +73,9 @@ $query_institusi = mysqli_query($koneksi, "SELECT DISTINCT institusi_peminjam FR
 
                 <!-- Institusi Peminjam (Autocomplete) -->
                 <div class="mb-3 position-relative">
-                    <label class="form-label">Institusi / Unit Peminjam</label>
+                    <label class="form-label">Instansi atau Unit Peminjam</label>
                     <input type="text" name="institusi_peminjam" id="institusi" class="form-control" 
-                           placeholder="Ketik nama unit/instansi..." 
+                           placeholder="Ketik nama instansi..." 
                            value="<?php echo $_SESSION['unit'] ?? ''; ?>" 
                            autocomplete="off" required>
                     <div id="suggestion-box">

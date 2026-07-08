@@ -98,7 +98,7 @@ $query_inst = mysqli_query($koneksi, "SELECT DISTINCT institusi_peminjam FROM re
                 </div>
 
                 <div class="mb-3 position-relative">
-                    <label class="small fw-bold mb-1">Institusi / Nama Pengurus</label>
+                    <label class="small fw-bold mb-1">Instansi</label>
                     <input type="text" name="institusi_peminjam" id="institusi" class="form-control" placeholder="Ketik nama..." autocomplete="off" required>
                     <div id="sug-box">
                         <div class="list-group list-group-flush">
