@@ -62,7 +62,7 @@ if ($eksekusi) {
     $pesan = "Assalamualaikum, Ustadz *" . $d['nama_lengkap'] . "*,\n\n";
 
     if ($status == 'disetujui') {
-        $pesan .= "Kabar baik! Pengajuan mobil Anda di *" . $nama_sistem . "* telah *DISETUJUI*.\n\n";
+        $pesan .= "Kabar baik! Pengajuan peminjaman mobil Anda di *" . $nama_sistem . "* telah *DISETUJUI*.\n\n";
         $pesan .= "*Unit Armada:* \n";
         $pesan .= "• Mobil: " . $d['merk'] . " " . $d['model'] . "\n";
         $pesan .= "• Plat: " . $d['nomor_plat'] . "\n";
@@ -70,7 +70,7 @@ if ($eksekusi) {
         $pesan .= "Mohon maaf, pengajuan mobil Anda di *" . $nama_sistem . "* terpaksa kami *BATALKAN*.\n\n";
         $pesan .= "*Alasan:* " . ($_GET['alasan'] ?? 'Alasan operasional mendadak.') . "\n\n";
     } else {
-        $pesan .= "Mohon maaf, pengajuan mobil Anda di *" . $nama_sistem . "* saat ini *DITOLAK* / Belum dapat disetujui.\n\n";
+        $pesan .= "Mohon maaf, pengajuan peminjaman mobil Anda di *" . $nama_sistem . "* saat ini *DITOLAK* / Belum dapat disetujui.\n\n";
     }
 
     $pesan .= "*Detail Jadwal:* \n";
